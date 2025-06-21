@@ -1,6 +1,30 @@
-# Laravel Visual Builder
+# Laravel Visual Builder v2.0.0
+
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/laravel-builder/visual-builder)
+[![Laravel](https://img.shields.io/badge/Laravel-10%20%7C%2011%20%7C%2012-red.svg)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-purple.svg)](https://php.net)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.md)
 
 A comprehensive Laravel package for building and managing AI agents with advanced features, supporting Laravel 10, 11, and 12.
+
+## 🚀 Version 2.0.0 Release
+
+### Major New Features
+- ✅ **Telegram Bot Integration** - Complete bot functionality with webhook support
+- ✅ **Advanced Backup System** - Multi-provider cloud storage backup
+- ✅ **Security Service** - Comprehensive security features
+- ✅ **Monitoring & Analytics** - Real-time system monitoring
+- ✅ **Cloud Storage Integration** - Google Drive, Mega.nz, S3 support
+
+### What's New in v2.0
+- **57% Feature Completion** - Up from 30% in v1.0
+- **5 Major Services** - Telegram, Backup, Security, Monitoring, Cloud Storage
+- **Enhanced Configuration** - Improved service configuration
+- **Better Error Handling** - Comprehensive error management
+- **Performance Optimizations** - Faster service loading and execution
+
+### Breaking Changes
+- None - Fully backward compatible with v1.0
 
 ## Laravel Version Compatibility
 

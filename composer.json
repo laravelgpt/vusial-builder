@@ -2,6 +2,7 @@
     "name": "laravel-builder/visual-builder",
     "description": "A comprehensive visual builder for Laravel applications, designed to streamline the creation of UI components, AI agents, and administrative interfaces. Includes support for real-time updates, security features, and cloud integrations.",
     "type": "library",
+    "version": "2.0.0",
     "license": "MIT",
     "authors": [
         {
