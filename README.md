@@ -1,138 +1,267 @@
 # Laravel Visual Builder
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/laravel-builder/visual-builder.svg?style=flat-square)](https://packagist.org/packages/laravel-builder/visual-builder)
-[![Total Downloads](https://img.shields.io/packagist/dt/laravel-builder/visual-builder.svg?style=flat-square)](https://packagist.org/packages/laravel-builder/visual-builder)
+A comprehensive Laravel package for building and managing AI agents with advanced features, supporting Laravel 10, 11, and 12.
 
-A comprehensive visual builder for Laravel applications, designed to streamline the creation of UI components, AI agents, and administrative interfaces. Includes support for real-time updates, security features, and cloud integrations.
+## Laravel Version Compatibility
 
-**[View the full documentation here.](./docs/index.html)**
+| Feature                    | Laravel 10         | Laravel 11          | Laravel 12 (early/nightly)        |
+| -------------------------- | ------------------ | ------------------- | --------------------------------- |
+| PHP Version                | 8.1+               | 8.2+                | 8.2+ (likely 8.3+ soon)           |
+| App Structure              | Traditional        | Minimal, modular    | Modular + Env-specific bootstraps |
+| Feature Flags (Pennant)    | ✅                  | ✅                   | ✅                                 |
+| Laravel Reverb (WebSocket) | Optional (preview) | ✅ (included)        | ✅ Improved                        |
+| Laravel Volt (UI)          | ❌                  | ✅                   | ✅                                 |
+| Route & Middleware Setup   | Traditional        | Via `bootstrap.php` | Improved modular setup            |
+| Type Declarations          | Added              | Enforced            | Enforced                          |
+| Laravel Prompts (CLI UX)   | ✅                  | ✅                   | Enhanced with AI                  |
+| Livewire Support           | Optional           | Optional            | Optimized with Volt/Prism         |
 
 ## Features
 
-- **🎨 Visual Component Builder**: Intuitive drag-and-drop interface for creating and managing UI components.
-- **🤖 AI Agent Integration**: Seamlessly integrate AI capabilities for automation and intelligent features.
-- **🔒 Robust Security & Middleware**: Protect your application with built-in security features and middleware control.
-- **⚡ Dynamic Real-Time UI**: Build reactive interfaces with deep integration for Livewire and Laravel Reverb.
-- **☁️ Flexible Storage Options**: Connect to local filesystems or cloud providers like Amazon S3.
-- **🔧 Advanced Developer Tools**: Fine-tune your application with feature flags and centralized configuration.
+### AI Agent Components
+- **Chat Interface**: Real-time chat with AI agents
+- **Error Handling**: Comprehensive error management and recovery
+- **Prompt Engineering**: Advanced prompt management and optimization
+- **Context Management**: Intelligent context handling for conversations
+- **Response Processing**: Sophisticated response handling and formatting
+- **WebSocket Support**: Real-time communication via Laravel Reverb
+- **UI Components**: Modern UI with Laravel Volt integration
+- **Feature Flags**: Dynamic feature toggling with Laravel Pennant
 
-## Requirements
+### Security Features
+- **Malware Detection**: Advanced malware scanning and analysis
+- **Content Analysis**: Comprehensive content validation
+- **File Validation**: Secure file type verification
+- **Security Middleware**: Enhanced security layer
+- **Quarantine System**: Safe file isolation
 
-- PHP >= 8.2
-- Laravel >= 10.0
-- Composer
+### Database Management
+- **Backup System**: Automated database backups
+- **Cloud Integration**: Google Drive and Mega.nz support
+- **Backup Validation**: Secure backup verification
+- **Scheduled Backups**: Automated backup scheduling
+- **Backup Notifications**: Real-time backup status updates
+
+### Information Management
+- **System Information**: Detailed system status monitoring
+- **Cloud Storage**: Multi-provider cloud storage support
+- **Backup Management**: Comprehensive backup handling
+- **Data Synchronization**: Real-time data sync across platforms
+- **Storage Analytics**: Detailed storage usage statistics
+
+### Builder Components
+- **Dashboard Builder**: Custom dashboard creation
+- **Report Builder**: Advanced reporting system
+- **Export Builder**: Data export functionality
+- **Import Builder**: Data import capabilities
+- **Notification Builder**: Custom notification system
+- **Event Builder**: Event management system
+- **Command Builder**: Custom command creation
+- **Job Builder**: Background job management
+- **Mail Builder**: Email system builder
+- **Resource Builder**: API resource management
+- **Controller Builder**: Controller generation
+- **Security Builder**: Security component builder
 
 ## Installation
-
-You can install the package via Composer:
 
 ```bash
 composer require laravel-builder/visual-builder
 ```
 
-Next, publish the configuration file using the `vendor:publish` command. This will create a `config/visual-builder.php` file in your application.
-
-```bash
-php artisan vendor:publish --provider="LaravelBuilder\VisualBuilder\VisualBuilderServiceProvider" --tag="config"
-```
-
 ## Configuration
 
-### Environment Variables
+Publish the configuration file:
 
-It is recommended to configure the Visual Builder through your `.env` file. A comprehensive list of variables can be found in the [full documentation](./docs/index.html#environment).
-
-```env
-VISUAL_BUILDER_API_KEY=your_api_key
-VISUAL_BUILDER_DEBUG=true
-VISUAL_BUILDER_STORAGE_DISK=s3
+```bash
+php artisan vendor:publish --provider="LaravelBuilder\VisualBuilder\VisualBuilderServiceProvider"
 ```
 
-### Main Configuration File
+### Laravel 11+ Setup
 
-For more advanced configuration, you can directly modify the published `config/visual-builder.php` file. This file allows you to configure middleware, component paths, and visualization settings.
+For Laravel 11 and above, the package uses the new modular structure:
 
 ```php
-// config/visual-builder.php
-return [
-    'prefix' => 'builder',
-    'middleware' => ['web', 'auth'],
-    'storage' => [
-        'disk' => env('VISUAL_BUILDER_STORAGE_DISK', 'local'),
-        'path' => 'builder',
-    ],
-    // ...
-];
+// bootstrap/app.php
+return Application::configure(basePath: dirname(__DIR__))
+    ->withProviders()
+    ->withMiddleware([
+        // Your middleware configuration
+    ])
+    ->create();
 ```
 
-## Basic Usage
-
-Once installed and configured, you can begin building components and leveraging the package's features. Here's a conceptual example of how you might define a new UI component.
+### Feature Flags (Pennant)
 
 ```php
-// app/View/Components/UserProfileCard.php
-namespace App\View\Components;
+use Laravel\Pennant\Feature;
 
-use Illuminate\View\Component;
+// Define features
+Feature::define('ai-chat', function () {
+    return true;
+});
 
-class UserProfileCard extends Component
-{
-    public function __construct(
-        public string $name,
-        public string $title,
-        public string $avatar
-    ) {}
-
-    public function render()
-    {
-        return view('components.user-profile-card');
-    }
+// Check features
+if (Feature::active('ai-chat')) {
+    // Enable AI chat functionality
 }
 ```
 
-This component can then be used in your Blade templates and managed through the Visual Builder interface.
-
-```html
-<x-user-profile-card
-    name="Alex Doe"
-    title="Software Engineer"
-    avatar="path/to/avatar.jpg"
-/>
-```
-
-For more in-depth examples and guides, please refer to the **[full documentation](./docs/index.html)**.
-
-## Security
-
-The package includes several security features to help protect your application. By default, it uses Blade's built-in XSS protection. For more advanced security, such as controlling access to the builder itself, you can add your own middleware in the `config/visual-builder.php` file.
-
-## Real-time Updates with Reverb
-
-Leverage Laravel Reverb for real-time updates to your components. For instance, you can broadcast an event when a component is updated and listen for it on the frontend to reflect changes instantly.
+### WebSocket Setup (Reverb)
 
 ```php
-// Broadcasting an event
-event(new ComponentUpdated($component));
+// config/reverb.php
+return [
+    'servers' => [
+        'default' => [
+            'host' => env('REVERB_HOST', '127.0.0.1'),
+            'port' => env('REVERB_PORT', 8080),
+        ],
+    ],
+];
+```
 
-// Listening with JavaScript
-window.Echo.channel('builder')
-    .listen('ComponentUpdated', (e) => {
-        console.log('Component updated:', e.component);
-    });
+### Volt Components
+
+```php
+use Laravel\Volt\Volt;
+
+Volt::component('ai-chat', function () {
+    return view('components.ai-chat');
+});
+```
+
+## Usage
+
+### AI Agent Setup
+
+```php
+use LaravelBuilder\VisualBuilder\Services\AiAgentBuilder;
+
+$builder = new AiAgentBuilder();
+$builder->build('YourModel');
+```
+
+### Security Implementation
+
+```php
+use LaravelBuilder\VisualBuilder\Services\SecurityBuilder;
+
+$builder = new SecurityBuilder();
+$builder->build('YourModel');
+```
+
+### Database Backup
+
+```php
+use LaravelBuilder\VisualBuilder\Services\DatabaseBackupBuilder;
+
+$builder = new DatabaseBackupBuilder();
+$builder->build('YourModel');
+```
+
+## Cloud Storage Integration
+
+### Google Drive
+
+```php
+use LaravelBuilder\VisualBuilder\Services\CloudStorageService;
+
+$storage = new CloudStorageService('google');
+$storage->connect();
+```
+
+### Mega.nz
+
+```php
+use LaravelBuilder\VisualBuilder\Services\CloudStorageService;
+
+$storage = new CloudStorageService('mega');
+$storage->connect();
+```
+
+## Security Features
+
+### Malware Scanning
+
+```php
+use LaravelBuilder\VisualBuilder\Services\SecurityService;
+
+$security = new SecurityService();
+$result = $security->scanFile($file);
+```
+
+### Content Analysis
+
+```php
+use LaravelBuilder\VisualBuilder\Services\ContentAnalyzer;
+
+$analyzer = new ContentAnalyzer();
+$result = $analyzer->analyze($content);
+```
+
+## Database Backup
+
+### Automated Backups
+
+```php
+use LaravelBuilder\VisualBuilder\Services\BackupService;
+
+$backup = new BackupService();
+$backup->create();
+```
+
+### Backup Validation
+
+```php
+use LaravelBuilder\VisualBuilder\Services\BackupService;
+
+$backup = new BackupService();
+$isValid = $backup->validate($backupFile);
+```
+
+## Information Management
+
+### System Information
+
+```php
+use LaravelBuilder\VisualBuilder\Services\InformationService;
+
+$info = new InformationService();
+$systemInfo = $info->getSystemInfo();
+```
+
+### Storage Analytics
+
+```php
+use LaravelBuilder\VisualBuilder\Services\InformationService;
+
+$info = new InformationService();
+$storageInfo = $info->getStorageInfo();
+```
+
+## Testing
+
+```bash
+composer test
 ```
 
 ## Contributing
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-## License
+## Security
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+If you discover any security related issues, please email support@laravelbuilder.com instead of using the issue tracker.
 
 ## Credits
 
 - [Laravel Builder](https://github.com/laravel-builder)
 - [All Contributors](../../contributors)
+
+## License
+
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
 
 ## Support
 
