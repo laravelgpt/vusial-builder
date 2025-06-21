@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Services;
+
+use Grpc\ChannelCredentials;
+use Grpc\BaseStub;
+
+class {{ DummyService }} extends BaseStub
+{
+    public function __construct($hostname, $opts = [], $channel = null)
+    {
+        parent::__construct($hostname, $opts, $channel);
+    }
+
+    public function Call($argument, $metadata = [], $options = [])
+    {
+        return $this->_simpleRequest(
+            '/{{ dummyService }}.{{ DummyService }}/Call',
+            $argument,
+            ['\App\Proto\Response', 'decode'],
+            $metadata,
+            $options
+        );
+    }
+
+    public function Stream($argument, $metadata = [], $options = [])
+    {
+        return $this->_serverStreamRequest(
+            '/{{ dummyService }}.{{ DummyService }}/Stream',
+            $argument,
+            ['\App\Proto\Response', 'decode'],
+            $metadata,
+            $options
+        );
+    }
+
+    public function ClientStream($metadata = [], $options = [])
+    {
+        return $this->_clientStreamRequest(
+            '/{{ dummyService }}.{{ DummyService }}/ClientStream',
+            ['\App\Proto\Request', 'encode'],
+            $metadata,
+            $options
+        );
+    }
+
+    public function BidiStream($metadata = [], $options = [])
+    {
+        return $this->_bidiRequest(
+            '/{{ dummyService }}.{{ DummyService }}/BidiStream',
+            ['\App\Proto\Request', 'encode'],
+            ['\App\Proto\Response', 'decode'],
+            $metadata,
+            $options
+        );
+    }
+} 

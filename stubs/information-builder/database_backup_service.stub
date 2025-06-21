@@ -1,0 +1,163 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use LaravelBuilder\VisualBuilder\Services\Information\CloudStorage\CloudStorageService;
+use LaravelBuilder\VisualBuilder\Services\Information\Backup\BackupService;
+
+class {{ class }}
+{
+    protected $cloudStorage;
+    protected $backupService;
+    protected $backupPath;
+    protected $maxBackups;
+    protected $compression;
+
+    public function __construct()
+    {
+        $this->cloudStorage = new CloudStorageService();
+        $this->backupService = new BackupService();
+        $this->backupPath = storage_path('app/database-backups');
+        $this->maxBackups = config('database.backup.max_backups', 5);
+        $this->compression = config('database.backup.compression', true);
+    }
+
+    {{ methods }}
+
+    protected function getLastBackupTime()
+    {
+        return $this->backupService->getLastBackupTime('database');
+    }
+
+    protected function getBackupCount()
+    {
+        return $this->backupService->getBackupCount('database');
+    }
+
+    protected function getTotalBackupSize()
+    {
+        return $this->backupService->getTotalBackupSize('database');
+    }
+
+    protected function cleanupOldBackups()
+    {
+        return $this->backupService->cleanupOldBackups('database', $this->maxBackups);
+    }
+
+    protected function validateBackup($backupFile)
+    {
+        if (!file_exists($backupFile)) {
+            throw new \Exception('Backup file does not exist');
+        }
+
+        // Validate SQL file
+        if (pathinfo($backupFile, PATHINFO_EXTENSION) === 'sql') {
+            return $this->validateSqlBackup($backupFile);
+        }
+
+        // Validate compressed backup
+        if (pathinfo($backupFile, PATHINFO_EXTENSION) === 'gz') {
+            return $this->validateCompressedBackup($backupFile);
+        }
+
+        throw new \Exception('Invalid backup file format');
+    }
+
+    protected function validateSqlBackup($backupFile)
+    {
+        $content = file_get_contents($backupFile);
+        
+        // Check for basic SQL syntax
+        if (!preg_match('/^-- MySQL dump/i', $content)) {
+            throw new \Exception('Invalid SQL backup format');
+        }
+
+        // Check for database structure
+        if (!preg_match('/CREATE TABLE/i', $content)) {
+            throw new \Exception('Backup does not contain table structures');
+        }
+
+        return true;
+    }
+
+    protected function validateCompressedBackup($backupFile)
+    {
+        $zip = new \ZipArchive();
+        if ($zip->open($backupFile) !== true) {
+            throw new \Exception('Cannot open compressed backup file');
+        }
+
+        $hasSqlFile = false;
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            if (pathinfo($zip->getNameIndex($i), PATHINFO_EXTENSION) === 'sql') {
+                $hasSqlFile = true;
+                break;
+            }
+        }
+
+        $zip->close();
+
+        if (!$hasSqlFile) {
+            throw new \Exception('Compressed backup does not contain SQL file');
+        }
+
+        return true;
+    }
+
+    protected function compressBackup($backupFile)
+    {
+        if (!$this->compression) {
+            return $backupFile;
+        }
+
+        $zip = new \ZipArchive();
+        $zipFile = $backupFile . '.gz';
+        
+        if ($zip->open($zipFile, \ZipArchive::CREATE) !== true) {
+            throw new \Exception('Cannot create compressed backup file');
+        }
+
+        $zip->addFile($backupFile, basename($backupFile));
+        $zip->close();
+
+        unlink($backupFile);
+        return $zipFile;
+    }
+
+    protected function uploadToCloud($backupFile)
+    {
+        return $this->cloudStorage->uploadFile($backupFile, 'database-backups/' . basename($backupFile));
+    }
+
+    protected function downloadFromCloud($backupFile)
+    {
+        return $this->cloudStorage->downloadFile('database-backups/' . basename($backupFile), $this->backupPath);
+    }
+
+    protected function logBackupEvent($event, $data = [])
+    {
+        Log::channel('database-backup')->info($event, $data);
+    }
+
+    protected function getBackupMetadata($backupFile)
+    {
+        return [
+            'filename' => basename($backupFile),
+            'size' => filesize($backupFile),
+            'created_at' => filemtime($backupFile),
+            'compressed' => pathinfo($backupFile, PATHINFO_EXTENSION) === 'gz',
+            'database' => config('database.connections.' . config('database.default') . '.database'),
+            'tables' => $this->getBackupTables($backupFile)
+        ];
+    }
+
+    protected function getBackupTables($backupFile)
+    {
+        $content = file_get_contents($backupFile);
+        preg_match_all('/CREATE TABLE `([^`]+)`/i', $content, $matches);
+        return $matches[1] ?? [];
+    }
+} 

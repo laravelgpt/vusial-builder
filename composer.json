@@ -1,0 +1,67 @@
+{
+    "name": "laravel-builder/visual-builder",
+    "description": "A comprehensive visual builder for Laravel applications, designed to streamline the creation of UI components, AI agents, and administrative interfaces. Includes support for real-time updates, security features, and cloud integrations.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Laravel Builder",
+            "email": "support@laravelbuilder.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^10.0|^11.0|^12.0",
+        "guzzlehttp/guzzle": "^7.0",
+        "openai-php/client": "^0.8.0",
+        "league/flysystem": "^3.0",
+        "league/flysystem-aws-s3-v3": "^3.0",
+        "google/apiclient": "^2.15.0",
+        "mega-php/mega-php": "^1.0",
+        "spatie/laravel-backup": "^8.0",
+        "spatie/laravel-permission": "^5.0",
+        "spatie/laravel-activitylog": "^4.0",
+        "spatie/laravel-medialibrary": "^10.0",
+        "spatie/laravel-sluggable": "^3.0",
+        "spatie/laravel-tags": "^4.0",
+        "spatie/laravel-translatable": "^6.0",
+        "spatie/laravel-query-builder": "^5.0",
+        "livewire/livewire": "^3.0",
+        "laravel/pennant": "^1.0",
+        "laravel/reverb": "^1.0",
+        "laravel/volt": "^1.0",
+        "laravel/prompts": "^0.1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "orchestra/testbench": "^8.0",
+        "phpstan/phpstan": "^1.0",
+        "nunomaduro/collision": "^7.0",
+        "spatie/laravel-ray": "^2.0",
+        "barryvdh/laravel-debugbar": "^3.0",
+        "barryvdh/laravel-ide-helper": "^3.0",
+        "mockery/mockery": "^1.0",
+        "fakerphp/faker": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "LaravelBuilder\\VisualBuilder\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaravelBuilder\\VisualBuilder\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-html coverage",
+        "analyse": "phpstan analyse",
+        "format": "php-cs-fixer fix --allow-risky=yes"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+} 

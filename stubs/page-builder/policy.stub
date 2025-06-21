@@ -1,0 +1,94 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ modelNamespace }}\{{ modelClass }};
+use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
+
+class {{ class }}
+{
+    use HandlesAuthorization;
+
+    /**
+     * Determine whether the user can view any pages.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function viewAny(User $user)
+    {
+        return true;
+    }
+
+    /**
+     * Determine whether the user can view the page.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return bool
+     */
+    public function view(User $user, {{ modelClass }} $page)
+    {
+        return true;
+    }
+
+    /**
+     * Determine whether the user can create pages.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function create(User $user)
+    {
+        return $user->hasRole('admin') || $user->hasPermissionTo('create pages');
+    }
+
+    /**
+     * Determine whether the user can update the page.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return bool
+     */
+    public function update(User $user, {{ modelClass }} $page)
+    {
+        return $user->hasRole('admin') || $user->hasPermissionTo('edit pages');
+    }
+
+    /**
+     * Determine whether the user can delete the page.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return bool
+     */
+    public function delete(User $user, {{ modelClass }} $page)
+    {
+        return $user->hasRole('admin') || $user->hasPermissionTo('delete pages');
+    }
+
+    /**
+     * Determine whether the user can restore the page.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return bool
+     */
+    public function restore(User $user, {{ modelClass }} $page)
+    {
+        return $user->hasRole('admin') || $user->hasPermissionTo('restore pages');
+    }
+
+    /**
+     * Determine whether the user can permanently delete the page.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return bool
+     */
+    public function forceDelete(User $user, {{ modelClass }} $page)
+    {
+        return $user->hasRole('admin') || $user->hasPermissionTo('force delete pages');
+    }
+} 

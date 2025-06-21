@@ -1,0 +1,142 @@
+<?php
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Visual Builder Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This file contains the configuration settings for the Visual Builder package.
+    |
+    */
+
+    'model' => '{{ $model }}',
+
+    /*
+    |--------------------------------------------------------------------------
+    | PHP Version Requirements
+    |--------------------------------------------------------------------------
+    |
+    | The minimum PHP version required for this package.
+    |
+    */
+    'php_version' => '{{ $php_version }}',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Feature Flags
+    |--------------------------------------------------------------------------
+    |
+    | Enable or disable specific features of the package.
+    |
+    */
+    'features' => [
+        'pennant' => {{ $has_pennant ? 'true' : 'false' }},
+        'reverb' => {{ $has_reverb ? 'true' : 'false' }},
+        'volt' => {{ $has_volt ? 'true' : 'false' }},
+        'prompts' => {{ $has_prompts ? 'true' : 'false' }},
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | AI Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration settings for AI features.
+    |
+    */
+    'ai' => [
+        'model' => env('AI_MODEL', 'gpt-4'),
+        'temperature' => env('AI_TEMPERATURE', 0.7),
+        'max_tokens' => env('AI_MAX_TOKENS', 1000),
+        'timeout' => env('AI_TIMEOUT', 30),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Security Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Security-related settings for the package.
+    |
+    */
+    'security' => [
+        'scan_uploads' => true,
+        'quarantine_path' => storage_path('app/quarantine'),
+        'allowed_file_types' => [
+            'image' => ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+            'document' => ['pdf', 'doc', 'docx', 'txt'],
+            'video' => ['mp4', 'webm', 'mov'],
+            'audio' => ['mp3', 'wav', 'ogg'],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Storage Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Storage-related settings for the package.
+    |
+    */
+    'storage' => [
+        'disk' => env('VISUAL_BUILDER_STORAGE_DISK', 'local'),
+        'backup_path' => storage_path('app/backups'),
+        'max_backups' => env('VISUAL_BUILDER_MAX_BACKUPS', 10),
+        'cloud_providers' => [
+            'google' => [
+                'enabled' => env('GOOGLE_DRIVE_ENABLED', false),
+                'client_id' => env('GOOGLE_DRIVE_CLIENT_ID'),
+                'client_secret' => env('GOOGLE_DRIVE_CLIENT_SECRET'),
+                'redirect_uri' => env('GOOGLE_DRIVE_REDIRECT_URI'),
+            ],
+            'mega' => [
+                'enabled' => env('MEGA_ENABLED', false),
+                'email' => env('MEGA_EMAIL'),
+                'password' => env('MEGA_PASSWORD'),
+            ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Cache-related settings for the package.
+    |
+    */
+    'cache' => [
+        'enabled' => true,
+        'ttl' => env('VISUAL_BUILDER_CACHE_TTL', 3600),
+        'prefix' => 'visual_builder',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Queue-related settings for the package.
+    |
+    */
+    'queue' => [
+        'enabled' => true,
+        'connection' => env('VISUAL_BUILDER_QUEUE_CONNECTION', 'redis'),
+        'queue' => env('VISUAL_BUILDER_QUEUE', 'default'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logging Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Logging-related settings for the package.
+    |
+    */
+    'logging' => [
+        'enabled' => true,
+        'channel' => env('VISUAL_BUILDER_LOG_CHANNEL', 'stack'),
+        'level' => env('VISUAL_BUILDER_LOG_LEVEL', 'debug'),
+    ],
+]; 

@@ -1,0 +1,66 @@
+<?php
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Pennant Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This file contains feature flag configuration settings using Laravel Pennant.
+    |
+    */
+
+    'default' => env('PENNANT_STORE', 'database'),
+
+    'stores' => [
+        'database' => [
+            'driver' => 'database',
+            'table' => 'features',
+        ],
+        'redis' => [
+            'driver' => 'redis',
+            'connection' => 'default',
+        ],
+    ],
+
+    'features' => [
+        'ai_agent' => [
+            'enabled' => true,
+            'description' => 'Enable AI Agent functionality',
+            'scope' => 'global',
+        ],
+        'security_scan' => [
+            'enabled' => true,
+            'description' => 'Enable security scanning features',
+            'scope' => 'global',
+        ],
+        'cloud_storage' => [
+            'enabled' => true,
+            'description' => 'Enable cloud storage integration',
+            'scope' => 'global',
+        ],
+        'backup_automation' => [
+            'enabled' => true,
+            'description' => 'Enable automated backup features',
+            'scope' => 'global',
+        ],
+        'prompt_engineering' => [
+            'enabled' => true,
+            'description' => 'Enable prompt engineering features',
+            'scope' => 'global',
+        ],
+    ],
+
+    'scopes' => [
+        'global' => null,
+        'user' => \App\Models\User::class,
+        'team' => \App\Models\Team::class,
+    ],
+
+    'default_scope' => 'global',
+
+    'cache' => [
+        'enabled' => true,
+        'ttl' => env('PENNANT_CACHE_TTL', 3600),
+    ],
+]; 

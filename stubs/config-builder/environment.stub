@@ -1,0 +1,104 @@
+<?php
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Environment Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This file contains environment-specific configuration settings.
+    |
+    */
+
+    'app' => [
+        'env' => env('APP_ENV', 'production'),
+        'debug' => env('APP_DEBUG', false),
+        'url' => env('APP_URL', 'http://localhost'),
+        'timezone' => env('APP_TIMEZONE', 'UTC'),
+        'locale' => env('APP_LOCALE', 'en'),
+        'key' => env('APP_KEY'),
+        'cipher' => 'AES-256-CBC',
+    ],
+
+    'database' => [
+        'default' => env('DB_CONNECTION', 'mysql'),
+        'connections' => [
+            'mysql' => [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => env('DB_DATABASE', 'forge'),
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'unix_socket' => env('DB_SOCKET', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'strict' => true,
+                'engine' => null,
+            ],
+        ],
+    ],
+
+    'cache' => [
+        'default' => env('CACHE_DRIVER', 'file'),
+        'stores' => [
+            'file' => [
+                'driver' => 'file',
+                'path' => storage_path('framework/cache/data'),
+            ],
+            'redis' => [
+                'driver' => 'redis',
+                'connection' => 'cache',
+            ],
+        ],
+    ],
+
+    'queue' => [
+        'default' => env('QUEUE_CONNECTION', 'sync'),
+        'connections' => [
+            'sync' => [
+                'driver' => 'sync',
+            ],
+            'redis' => [
+                'driver' => 'redis',
+                'connection' => 'default',
+                'queue' => env('REDIS_QUEUE', 'default'),
+                'retry_after' => 90,
+                'block_for' => null,
+            ],
+        ],
+    ],
+
+    'mail' => [
+        'default' => env('MAIL_MAILER', 'smtp'),
+        'mailers' => [
+            'smtp' => [
+                'transport' => 'smtp',
+                'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
+                'port' => env('MAIL_PORT', 587),
+                'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+                'username' => env('MAIL_USERNAME'),
+                'password' => env('MAIL_PASSWORD'),
+                'timeout' => null,
+                'local_domain' => env('MAIL_EHLO_DOMAIN'),
+            ],
+        ],
+        'from' => [
+            'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+            'name' => env('MAIL_FROM_NAME', 'Example'),
+        ],
+    ],
+
+    'services' => [
+        'google' => [
+            'client_id' => env('GOOGLE_CLIENT_ID'),
+            'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+            'redirect' => env('GOOGLE_REDIRECT_URI'),
+        ],
+        'mega' => [
+            'email' => env('MEGA_EMAIL'),
+            'password' => env('MEGA_PASSWORD'),
+        ],
+    ],
+]; 

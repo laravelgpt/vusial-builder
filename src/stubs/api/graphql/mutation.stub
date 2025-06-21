@@ -1,0 +1,37 @@
+<?php
+
+namespace App\GraphQL\Mutations;
+
+use GraphQL\Type\Definition\Type;
+use Rebing\GraphQL\Support\Mutation;
+use Rebing\GraphQL\Support\Facades\GraphQL;
+
+class {{ DummyMutation }} extends Mutation
+{
+    protected $attributes = [
+        'name' => '{{ DummyMutation }}',
+        'description' => 'A mutation for {{ DummyType }}',
+    ];
+
+    public function type(): Type
+    {
+        return GraphQL::type('{{ DummyType }}');
+    }
+
+    public function args(): array
+    {
+        return [
+            'id' => [
+                'name' => 'id',
+                'type' => Type::id(),
+            ],
+            // Add your arguments here
+        ];
+    }
+
+    public function resolve($root, $args)
+    {
+        // Add your resolver logic here
+        return [];
+    }
+} 

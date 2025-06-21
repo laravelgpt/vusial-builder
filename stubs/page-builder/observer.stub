@@ -1,0 +1,64 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ modelNamespace }}\{{ modelClass }};
+use Illuminate\Support\Facades\Cache;
+
+class {{ class }}
+{
+    /**
+     * Handle the {{ modelClass }} "created" event.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return void
+     */
+    public function created({{ modelClass }} $page)
+    {
+        Cache::tags(['pages'])->flush();
+    }
+
+    /**
+     * Handle the {{ modelClass }} "updated" event.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return void
+     */
+    public function updated({{ modelClass }} $page)
+    {
+        Cache::tags(['pages'])->flush();
+    }
+
+    /**
+     * Handle the {{ modelClass }} "deleted" event.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return void
+     */
+    public function deleted({{ modelClass }} $page)
+    {
+        Cache::tags(['pages'])->flush();
+    }
+
+    /**
+     * Handle the {{ modelClass }} "restored" event.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return void
+     */
+    public function restored({{ modelClass }} $page)
+    {
+        Cache::tags(['pages'])->flush();
+    }
+
+    /**
+     * Handle the {{ modelClass }} "force deleted" event.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return void
+     */
+    public function forceDeleted({{ modelClass }} $page)
+    {
+        Cache::tags(['pages'])->flush();
+    }
+} 

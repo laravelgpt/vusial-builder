@@ -1,0 +1,61 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Seeder;
+use {{ modelNamespace }}\{{ modelClass }};
+use Illuminate\Support\Str;
+
+class {{ class }} extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        $pages = [
+            [
+                'title' => 'Home',
+                'content' => 'Welcome to our website!',
+                'meta_title' => 'Home Page',
+                'meta_description' => 'Welcome to our website homepage.',
+                'meta_keywords' => 'home, welcome, website',
+                'status' => true,
+                'published_at' => now(),
+            ],
+            [
+                'title' => 'About',
+                'content' => 'Learn more about us.',
+                'meta_title' => 'About Us',
+                'meta_description' => 'Learn more about our company and team.',
+                'meta_keywords' => 'about, company, team',
+                'status' => true,
+                'published_at' => now(),
+            ],
+            [
+                'title' => 'Contact',
+                'content' => 'Get in touch with us.',
+                'meta_title' => 'Contact Us',
+                'meta_description' => 'Contact us for any inquiries or support.',
+                'meta_keywords' => 'contact, support, help',
+                'status' => true,
+                'published_at' => now(),
+            ],
+        ];
+
+        foreach ($pages as $page) {
+            {{ modelClass }}::create([
+                'title' => $page['title'],
+                'slug' => Str::slug($page['title']),
+                'content' => $page['content'],
+                'meta_title' => $page['meta_title'],
+                'meta_description' => $page['meta_description'],
+                'meta_keywords' => $page['meta_keywords'],
+                'status' => $page['status'],
+                'published_at' => $page['published_at'],
+            ]);
+        }
+    }
+} 

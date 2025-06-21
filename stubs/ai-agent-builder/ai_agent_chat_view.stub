@@ -1,0 +1,131 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <!-- Chat Header -->
+            <div class="bg-gray-800 text-white px-6 py-4">
+                <h1 class="text-xl font-semibold">AI Assistant</h1>
+                <p class="text-sm text-gray-300">Ask me anything!</p>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="h-96 overflow-y-auto p-6" id="chat-messages">
+                <div class="space-y-4">
+                    <!-- Messages will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="border-t border-gray-200 p-4">
+                <form id="chat-form" class="flex space-x-4">
+                    <div class="flex-1">
+                        <input type="text" 
+                               id="message-input" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                               placeholder="Type your message..."
+                               required>
+                    </div>
+                    <button type="submit" 
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Send
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    const chatMessages = document.getElementById('chat-messages');
+    let messageHistory = [];
+
+    // Load chat history
+    fetch('/api/ai-agent/chat-history')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                messageHistory = data.data;
+                renderMessages();
+            }
+        });
+
+    chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        // Add user message to UI
+        addMessage('user', message);
+        messageInput.value = '';
+
+        try {
+            const response = await fetch('/api/ai-agent/process-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    message: message,
+                    context: { history: messageHistory }
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                // Add AI response to UI
+                addMessage('ai', data.data.text);
+                
+                // Update message history
+                messageHistory.push(
+                    { role: 'user', content: message },
+                    { role: 'assistant', content: data.data.text }
+                );
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            addMessage('error', 'Sorry, something went wrong. Please try again.');
+        }
+    });
+
+    function addMessage(role, content) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+        
+        const messageBubble = document.createElement('div');
+        messageBubble.className = `max-w-lg px-4 py-2 rounded-lg ${
+            role === 'user' 
+                ? 'bg-blue-600 text-white' 
+                : role === 'error'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-gray-200 text-gray-800'
+        }`;
+        messageBubble.textContent = content;
+        
+        messageDiv.appendChild(messageBubble);
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function renderMessages() {
+        chatMessages.innerHTML = '';
+        messageHistory.forEach(msg => {
+            addMessage(msg.role === 'user' ? 'user' : 'ai', msg.content);
+        });
+    }
+});
+</script>
+@endpush
+@endsection 

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="{{ dummyService }}"
+             targetNamespace="http://localhost/{{ dummyService }}"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="http://localhost/{{ dummyService }}"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <types>
+        <xsd:schema targetNamespace="http://localhost/{{ dummyService }}">
+            <!-- Add your types here -->
+        </xsd:schema>
+    </types>
+
+    <message name="Request">
+        <!-- Add your request message parts here -->
+    </message>
+
+    <message name="Response">
+        <!-- Add your response message parts here -->
+    </message>
+
+    <portType name="{{ dummyService }}PortType">
+        <operation name="operation">
+            <input message="tns:Request"/>
+            <output message="tns:Response"/>
+        </operation>
+    </portType>
+
+    <binding name="{{ dummyService }}Binding" type="tns:{{ dummyService }}PortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="operation">
+            <soap:operation soapAction="http://localhost/{{ dummyService }}/operation"/>
+            <input>
+                <soap:body use="encoded" namespace="http://localhost/{{ dummyService }}" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="http://localhost/{{ dummyService }}" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+    </binding>
+
+    <service name="{{ dummyService }}Service">
+        <port name="{{ dummyService }}Port" binding="tns:{{ dummyService }}Binding">
+            <soap:address location="http://localhost/{{ dummyService }}"/>
+        </port>
+    </service>
+</definitions> 

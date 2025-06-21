@@ -1,0 +1,70 @@
+@extends('{{ layout }}')
+
+@section('title', $page->title)
+
+@section('meta')
+    @if($page->meta_title)
+        <meta name="title" content="{{ $page->meta_title }}">
+    @endif
+    @if($page->meta_description)
+        <meta name="description" content="{{ $page->meta_description }}">
+    @endif
+    @if($page->meta_keywords)
+        <meta name="keywords" content="{{ $page->meta_keywords }}">
+    @endif
+@endsection
+
+@section('content')
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-gray-900">{{ $page->title }}</h1>
+                    <div class="flex space-x-3">
+                        @can('update', $page)
+                            <a href="{{ route('{{ routeName }}.edit', $page) }}" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+                                Edit Page
+                            </a>
+                        @endcan
+                        @can('delete', $page)
+                            <form action="{{ route('{{ routeName }}.destroy', $page) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="return confirm('Are you sure you want to delete this page?')">
+                                    Delete Page
+                                </button>
+                            </form>
+                        @endcan
+                    </div>
+                </div>
+
+                <div class="prose max-w-none">
+                    {!! $page->content !!}
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <div class="flex justify-between items-center text-sm text-gray-500">
+                        <div>
+                            <span class="font-medium">Status:</span>
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $page->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                {{ $page->status ? 'Published' : 'Draft' }}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Published:</span>
+                            {{ $page->published_at ? $page->published_at->format('M d, Y') : 'Not published' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <a href="{{ route('{{ routeName }}.index') }}" class="text-indigo-600 hover:text-indigo-900">
+                &larr; Back to Pages
+            </a>
+        </div>
+    </div>
+</div>
+@endsection 

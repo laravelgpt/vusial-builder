@@ -1,0 +1,126 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use {{ namespace }}\{{ service }};
+
+class {{ class }} extends Controller
+{
+    protected $aiAgentService;
+
+    public function __construct({{ service }} $aiAgentService)
+    {
+        $this->aiAgentService = $aiAgentService;
+    }
+
+    public function processMessage(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'message' => 'required|string|max:1000',
+                'context' => 'array'
+            ]);
+
+            $response = $this->aiAgentService->processMessage(
+                $request->input('message'),
+                $request->input('context', [])
+            );
+
+            return response()->json([
+                'success' => true,
+                'data' => $response
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getChatHistory(Request $request): JsonResponse
+    {
+        try {
+            $history = $this->aiAgentService->getChatHistory(
+                $request->user()->id,
+                $request->input('limit', 50)
+            );
+
+            return response()->json([
+                'success' => true,
+                'data' => $history
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateSettings(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'settings' => 'required|array',
+                'settings.model' => 'required|string',
+                'settings.temperature' => 'required|numeric|min:0|max:1',
+                'settings.max_tokens' => 'required|integer|min:1'
+            ]);
+
+            $settings = $this->aiAgentService->updateSettings($request->input('settings'));
+
+            return response()->json([
+                'success' => true,
+                'data' => $settings
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getAnalytics(Request $request): JsonResponse
+    {
+        try {
+            $analytics = $this->aiAgentService->getAnalytics(
+                $request->input('timeframe', 'daily')
+            );
+
+            return response()->json([
+                'success' => true,
+                'data' => $analytics
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function chat()
+    {
+        return view('ai-agent.chat');
+    }
+
+    public function dashboard()
+    {
+        return view('ai-agent.dashboard');
+    }
+
+    public function settings()
+    {
+        return view('ai-agent.settings');
+    }
+
+    public function analytics()
+    {
+        return view('ai-agent.analytics');
+    }
+} 

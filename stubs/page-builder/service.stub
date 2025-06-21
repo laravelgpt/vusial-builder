@@ -1,0 +1,120 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ modelNamespace }}\{{ modelClass }};
+use {{ repositoryNamespace }}\{{ repositoryClass }};
+use Illuminate\Support\Str;
+
+class {{ class }}
+{
+    /**
+     * The page repository instance.
+     *
+     * @var \{{ repositoryNamespace }}\{{ repositoryClass }}
+     */
+    protected $pageRepository;
+
+    /**
+     * Create a new service instance.
+     *
+     * @param  \{{ repositoryNamespace }}\{{ repositoryClass }}  $pageRepository
+     * @return void
+     */
+    public function __construct({{ repositoryClass }} $pageRepository)
+    {
+        $this->pageRepository = $pageRepository;
+    }
+
+    /**
+     * Get all pages.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllPages()
+    {
+        return $this->pageRepository->all();
+    }
+
+    /**
+     * Get a page by ID.
+     *
+     * @param  int  $id
+     * @return \{{ modelNamespace }}\{{ modelClass }}
+     */
+    public function getPageById($id)
+    {
+        return $this->pageRepository->find($id);
+    }
+
+    /**
+     * Get a page by slug.
+     *
+     * @param  string  $slug
+     * @return \{{ modelNamespace }}\{{ modelClass }}
+     */
+    public function getPageBySlug($slug)
+    {
+        return $this->pageRepository->findBySlug($slug);
+    }
+
+    /**
+     * Create a new page.
+     *
+     * @param  array  $data
+     * @return \{{ modelNamespace }}\{{ modelClass }}
+     */
+    public function createPage(array $data)
+    {
+        $data['slug'] = $this->generateUniqueSlug($data['title']);
+
+        return $this->pageRepository->create($data);
+    }
+
+    /**
+     * Update a page.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @param  array  $data
+     * @return \{{ modelNamespace }}\{{ modelClass }}
+     */
+    public function updatePage({{ modelClass }} $page, array $data)
+    {
+        if (isset($data['title']) && $data['title'] !== $page->title) {
+            $data['slug'] = $this->generateUniqueSlug($data['title'], $page->id);
+        }
+
+        return $this->pageRepository->update($page, $data);
+    }
+
+    /**
+     * Delete a page.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return bool
+     */
+    public function deletePage({{ modelClass }} $page)
+    {
+        return $this->pageRepository->delete($page);
+    }
+
+    /**
+     * Generate a unique slug for a page.
+     *
+     * @param  string  $title
+     * @param  int|null  $excludeId
+     * @return string
+     */
+    protected function generateUniqueSlug($title, $excludeId = null)
+    {
+        $slug = Str::slug($title);
+        $count = 1;
+        $originalSlug = $slug;
+
+        while ($this->pageRepository->existsBySlug($slug, $excludeId)) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+
+        return $slug;
+    }
+} 

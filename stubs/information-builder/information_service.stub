@@ -1,0 +1,79 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use LaravelBuilder\VisualBuilder\Services\Information\CloudStorage\CloudStorageService;
+use LaravelBuilder\VisualBuilder\Services\Information\Backup\BackupService;
+use LaravelBuilder\VisualBuilder\Services\Information\Sync\SyncService;
+
+class {{ class }}
+{
+    protected $cloudStorage;
+    protected $backupService;
+    protected $syncService;
+
+    public function __construct()
+    {
+        $this->cloudStorage = new CloudStorageService();
+        $this->backupService = new BackupService();
+        $this->syncService = new SyncService();
+    }
+
+    {{ methods }}
+
+    protected function formatBytes($bytes, $precision = 2)
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= pow(1024, $pow);
+        return round($bytes, $precision) . ' ' . $units[$pow];
+    }
+
+    protected function getServerLoad()
+    {
+        if (function_exists('sys_getloadavg')) {
+            $load = sys_getloadavg();
+            return [
+                '1min' => $load[0],
+                '5min' => $load[1],
+                '15min' => $load[2]
+            ];
+        }
+        return null;
+    }
+
+    protected function getPhpInfo()
+    {
+        return [
+            'version' => PHP_VERSION,
+            'extensions' => get_loaded_extensions(),
+            'memory_limit' => ini_get('memory_limit'),
+            'max_execution_time' => ini_get('max_execution_time'),
+            'upload_max_filesize' => ini_get('upload_max_filesize'),
+            'post_max_size' => ini_get('post_max_size')
+        ];
+    }
+
+    protected function getDatabaseInfo()
+    {
+        return [
+            'driver' => config('database.default'),
+            'connections' => array_keys(config('database.connections')),
+            'migrations' => $this->getMigrationStatus()
+        ];
+    }
+
+    protected function getMigrationStatus()
+    {
+        $migrations = \DB::table('migrations')->get();
+        return [
+            'total' => count($migrations),
+            'last_migration' => $migrations->last()->migration ?? null,
+            'last_batch' => $migrations->last()->batch ?? null
+        ];
+    }
+} 

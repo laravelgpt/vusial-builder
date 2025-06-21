@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\Http;
+
+class {{ DummyService }}
+{
+    protected $baseUrl;
+    protected $headers;
+
+    public function __construct()
+    {
+        $this->baseUrl = config('services.{{ dummyEndpoint }}.url');
+        $this->headers = [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+        ];
+    }
+
+    public function get(string $endpoint, array $params = [])
+    {
+        return Http::withHeaders($this->headers)
+            ->get("{$this->baseUrl}/{$endpoint}", $params)
+            ->json();
+    }
+
+    public function post(string $endpoint, array $data = [])
+    {
+        return Http::withHeaders($this->headers)
+            ->post("{$this->baseUrl}/{$endpoint}", $data)
+            ->json();
+    }
+
+    public function put(string $endpoint, array $data = [])
+    {
+        return Http::withHeaders($this->headers)
+            ->put("{$this->baseUrl}/{$endpoint}", $data)
+            ->json();
+    }
+
+    public function delete(string $endpoint)
+    {
+        return Http::withHeaders($this->headers)
+            ->delete("{$this->baseUrl}/{$endpoint}")
+            ->json();
+    }
+} 

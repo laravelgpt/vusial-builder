@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Services;
+
+use SoapClient;
+use SoapFault;
+
+class {{ DummyService }}
+{
+    protected $client;
+    protected $wsdl;
+
+    public function __construct()
+    {
+        $this->wsdl = config('services.{{ dummyService }}.wsdl');
+        try {
+            $this->client = new SoapClient($this->wsdl, [
+                'trace' => true,
+                'exceptions' => true,
+                'cache_wsdl' => WSDL_CACHE_NONE,
+            ]);
+        } catch (SoapFault $e) {
+            throw new \Exception("SOAP Client Error: {$e->getMessage()}");
+        }
+    }
+
+    public function call(string $method, array $params = [])
+    {
+        try {
+            return $this->client->__soapCall($method, $params);
+        } catch (SoapFault $e) {
+            throw new \Exception("SOAP Call Error: {$e->getMessage()}");
+        }
+    }
+
+    public function getLastRequest()
+    {
+        return $this->client->__getLastRequest();
+    }
+
+    public function getLastResponse()
+    {
+        return $this->client->__getLastResponse();
+    }
+} 

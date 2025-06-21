@@ -1,0 +1,46 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use {{ namespace }}\{{ service }};
+
+class {{ class }} implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    protected $backupService;
+    public $tries = 3;
+    public $timeout = 3600;
+
+    public function __construct({{ service }} $backupService)
+    {
+        $this->backupService = $backupService;
+    }
+
+    public function handle()
+    {
+        try {
+            $result = $this->backupService->createBackup();
+            
+            // Dispatch notification
+            event(new DatabaseBackupCompleted($result));
+            
+            return $result;
+        } catch (\Exception $e) {
+            // Log error and retry
+            \Log::error('Database backup failed: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function failed(\Throwable $exception)
+    {
+        // Dispatch failure notification
+        event(new DatabaseBackupFailed($exception->getMessage()));
+    }
+} 

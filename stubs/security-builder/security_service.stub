@@ -1,0 +1,62 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use LaravelBuilder\VisualBuilder\Services\Security\Scanners\MalwareScanner;
+use LaravelBuilder\VisualBuilder\Services\Security\Analyzers\ContentAnalyzer;
+
+class {{ class }}
+{
+    protected $scanner;
+    protected $analyzer;
+
+    public function __construct()
+    {
+        $this->scanner = new MalwareScanner();
+        $this->analyzer = new ContentAnalyzer();
+    }
+
+    {{ methods }}
+
+    protected function logSecurityEvent($event, $data = [])
+    {
+        Log::channel('security')->info($event, $data);
+    }
+
+    protected function quarantineFile($file)
+    {
+        $quarantinePath = storage_path('app/quarantine');
+        if (!file_exists($quarantinePath)) {
+            mkdir($quarantinePath, 0755, true);
+        }
+        
+        $filename = basename($file);
+        $quarantineFile = $quarantinePath . '/' . $filename;
+        
+        if (file_exists($file)) {
+            rename($file, $quarantineFile);
+            $this->logSecurityEvent('File quarantined', [
+                'file' => $filename,
+                'path' => $quarantineFile
+            ]);
+        }
+    }
+
+    protected function validateFileType($file, $allowedTypes)
+    {
+        $mimeType = mime_content_type($file);
+        return in_array($mimeType, $allowedTypes);
+    }
+
+    protected function checkFileSize($file, $maxSize)
+    {
+        return filesize($file) <= $maxSize;
+    }
+
+    protected function sanitizeFilename($filename)
+    {
+        return preg_replace('/[^a-zA-Z0-9._-]/', '', $filename);
+    }
+} 

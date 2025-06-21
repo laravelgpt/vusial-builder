@@ -1,0 +1,60 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Console\Command;
+use {{ namespace }}\{{ service }};
+
+class {{ class }} extends Command
+{
+    protected $signature = 'database:backup {--force : Force backup even if recent backup exists}';
+    protected $description = 'Create a database backup';
+
+    protected $backupService;
+
+    public function __construct({{ service }} $backupService)
+    {
+        parent::__construct();
+        $this->backupService = $backupService;
+    }
+
+    public function handle()
+    {
+        try {
+            if (!$this->option('force')) {
+                $lastBackup = $this->backupService->getLastBackupTime();
+                if ($lastBackup && $lastBackup->diffInHours(now()) < 24) {
+                    if (!$this->confirm('A backup was created in the last 24 hours. Do you want to create another one?')) {
+                        return;
+                    }
+                }
+            }
+
+            $this->info('Creating database backup...');
+            $result = $this->backupService->createBackup();
+
+            $this->info('Backup created successfully!');
+            $this->table(
+                ['File', 'Size', 'Compressed'],
+                [[
+                    $result['file'],
+                    $this->formatBytes($result['size']),
+                    $result['compressed'] ? 'Yes' : 'No'
+                ]]
+            );
+        } catch (\Exception $e) {
+            $this->error('Failed to create backup: ' . $e->getMessage());
+            return 1;
+        }
+    }
+
+    protected function formatBytes($bytes)
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= pow(1024, $pow);
+        return round($bytes, 2) . ' ' . $units[$pow];
+    }
+} 

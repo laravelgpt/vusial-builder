@@ -1,0 +1,77 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class {{ class }} extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
+    {
+        $rules = [
+            'title' => ['required', 'string', 'max:255'],
+            'content' => ['required', 'string'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string', 'max:255'],
+            'meta_keywords' => ['nullable', 'string', 'max:255'],
+            'status' => ['boolean'],
+            'published_at' => ['nullable', 'date'],
+        ];
+
+        if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
+            $rules['title'][] = Rule::unique('pages')->ignore($this->route('page'));
+        } else {
+            $rules['title'][] = 'unique:pages';
+        }
+
+        return $rules;
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'title.required' => 'The page title is required.',
+            'title.unique' => 'This page title is already in use.',
+            'content.required' => 'The page content is required.',
+            'meta_title.max' => 'The meta title cannot exceed 255 characters.',
+            'meta_description.max' => 'The meta description cannot exceed 255 characters.',
+            'meta_keywords.max' => 'The meta keywords cannot exceed 255 characters.',
+            'published_at.date' => 'The published date must be a valid date.',
+        ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        if ($this->has('status')) {
+            $this->merge([
+                'status' => filter_var($this->status, FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+    }
+} 

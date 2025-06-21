@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Base URL
+BASE_URL="http://localhost:8000/api/{{ dummyEndpoint }}"
+
+# Headers
+HEADERS=(
+    "Accept: application/json"
+    "Content-Type: application/json"
+)
+
+# Example GET request
+curl -X GET "${BASE_URL}" \
+    -H "${HEADERS[0]}" \
+    -H "${HEADERS[1]}"
+
+# Example POST request
+curl -X POST "${BASE_URL}" \
+    -H "${HEADERS[0]}" \
+    -H "${HEADERS[1]}" \
+    -d '{
+        "name": "Example",
+        "description": "This is an example"
+    }'
+
+# Example PUT request
+curl -X PUT "${BASE_URL}/1" \
+    -H "${HEADERS[0]}" \
+    -H "${HEADERS[1]}" \
+    -d '{
+        "name": "Updated Example",
+        "description": "This is an updated example"
+    }'
+
+# Example DELETE request
+curl -X DELETE "${BASE_URL}/1" \
+    -H "${HEADERS[0]}" \
+    -H "${HEADERS[1]}" 

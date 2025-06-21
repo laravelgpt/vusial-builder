@@ -1,0 +1,73 @@
+<?php
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Middleware Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This file contains middleware configuration settings.
+    |
+    */
+
+    'global' => [
+        \App\Http\Middleware\TrustProxies::class,
+        \Illuminate\Http\Middleware\HandleCors::class,
+        \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \App\Http\Middleware\TrimStrings::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+    ],
+
+    'web' => [
+        \App\Http\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \App\Http\Middleware\VerifyCsrfToken::class,
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    ],
+
+    'api' => [
+        \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    ],
+
+    'security' => [
+        \App\Http\Middleware\SecurityScan::class,
+        \App\Http\Middleware\ContentValidation::class,
+        \App\Http\Middleware\MalwareDetection::class,
+    ],
+
+    'cloud' => [
+        \App\Http\Middleware\CloudStorageAuth::class,
+        \App\Http\Middleware\BackupValidation::class,
+    ],
+
+    'ai' => [
+        \App\Http\Middleware\AiAgentAuth::class,
+        \App\Http\Middleware\PromptValidation::class,
+    ],
+
+    'groups' => [
+        'admin' => [
+            \App\Http\Middleware\AdminAuth::class,
+            \App\Http\Middleware\AdminPermissions::class,
+        ],
+        'user' => [
+            \App\Http\Middleware\UserAuth::class,
+            \App\Http\Middleware\UserPermissions::class,
+        ],
+    ],
+
+    'priority' => [
+        \App\Http\Middleware\SecurityScan::class => 1,
+        \App\Http\Middleware\ContentValidation::class => 2,
+        \App\Http\Middleware\MalwareDetection::class => 3,
+        \App\Http\Middleware\CloudStorageAuth::class => 4,
+        \App\Http\Middleware\BackupValidation::class => 5,
+        \App\Http\Middleware\AiAgentAuth::class => 6,
+        \App\Http\Middleware\PromptValidation::class => 7,
+    ],
+]; 

@@ -1,0 +1,143 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ modelNamespace }}\{{ modelClass }};
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+
+class {{ class }}
+{
+    /**
+     * The page model instance.
+     *
+     * @var \{{ modelNamespace }}\{{ modelClass }}
+     */
+    protected $model;
+
+    /**
+     * Create a new repository instance.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $model
+     * @return void
+     */
+    public function __construct({{ modelClass }} $model)
+    {
+        $this->model = $model;
+    }
+
+    /**
+     * Get all pages.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function all(): Collection
+    {
+        return $this->model->all();
+    }
+
+    /**
+     * Find a page by ID.
+     *
+     * @param  int  $id
+     * @return \{{ modelNamespace }}\{{ modelClass }}|null
+     */
+    public function find($id): ?{{ modelClass }}
+    {
+        return $this->model->find($id);
+    }
+
+    /**
+     * Find a page by slug.
+     *
+     * @param  string  $slug
+     * @return \{{ modelNamespace }}\{{ modelClass }}|null
+     */
+    public function findBySlug($slug): ?{{ modelClass }}
+    {
+        return $this->model->where('slug', $slug)->first();
+    }
+
+    /**
+     * Create a new page.
+     *
+     * @param  array  $data
+     * @return \{{ modelNamespace }}\{{ modelClass }}
+     */
+    public function create(array $data): {{ modelClass }}
+    {
+        return $this->model->create($data);
+    }
+
+    /**
+     * Update a page.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @param  array  $data
+     * @return \{{ modelNamespace }}\{{ modelClass }}
+     */
+    public function update({{ modelClass }} $page, array $data): {{ modelClass }}
+    {
+        $page->update($data);
+        return $page;
+    }
+
+    /**
+     * Delete a page.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return bool
+     */
+    public function delete({{ modelClass }} $page): bool
+    {
+        return $page->delete();
+    }
+
+    /**
+     * Check if a page exists with the given slug.
+     *
+     * @param  string  $slug
+     * @param  int|null  $excludeId
+     * @return bool
+     */
+    public function existsBySlug($slug, $excludeId = null): bool
+    {
+        $query = $this->model->where('slug', $slug);
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        return $query->exists();
+    }
+
+    /**
+     * Get published pages.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getPublished(): Collection
+    {
+        return $this->model->published()->get();
+    }
+
+    /**
+     * Get draft pages.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getDraft(): Collection
+    {
+        return $this->model->draft()->get();
+    }
+
+    /**
+     * Get scheduled pages.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getScheduled(): Collection
+    {
+        return $this->model->scheduled()->get();
+    }
+} 

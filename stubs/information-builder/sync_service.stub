@@ -1,0 +1,142 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use LaravelBuilder\VisualBuilder\Services\Information\CloudStorage\CloudStorageService;
+use LaravelBuilder\VisualBuilder\Services\Information\Backup\BackupService;
+
+class {{ class }}
+{
+    protected $cloudStorage;
+    protected $backupService;
+    protected $syncPath;
+    protected $lastSyncTime;
+
+    public function __construct()
+    {
+        $this->cloudStorage = new CloudStorageService();
+        $this->backupService = new BackupService();
+        $this->syncPath = storage_path('app/sync');
+        $this->lastSyncTime = $this->getLastSyncTimeFromCache();
+    }
+
+    {{ methods }}
+
+    protected function getLastSyncTime()
+    {
+        return $this->lastSyncTime;
+    }
+
+    protected function getLastSyncTimeFromCache()
+    {
+        return cache()->get('last_sync_time');
+    }
+
+    protected function updateLastSyncTime()
+    {
+        $this->lastSyncTime = now();
+        cache()->put('last_sync_time', $this->lastSyncTime);
+    }
+
+    protected function getSyncStatus()
+    {
+        $localFiles = $this->getLocalFiles();
+        $cloudFiles = $this->cloudStorage->listFiles();
+        
+        return [
+            'local_count' => count($localFiles),
+            'cloud_count' => count($cloudFiles),
+            'last_sync' => $this->lastSyncTime,
+            'pending_changes' => $this->getPendingChanges($localFiles, $cloudFiles)
+        ];
+    }
+
+    protected function getPendingChanges($localFiles, $cloudFiles)
+    {
+        $changes = [
+            'to_upload' => [],
+            'to_download' => [],
+            'to_delete_local' => [],
+            'to_delete_cloud' => []
+        ];
+
+        // Find files to upload
+        foreach ($localFiles as $localFile) {
+            $cloudFile = $this->findCloudFile($cloudFiles, $localFile['name']);
+            if (!$cloudFile || $localFile['modified'] > $cloudFile['modified']) {
+                $changes['to_upload'][] = $localFile['name'];
+            }
+        }
+
+        // Find files to download
+        foreach ($cloudFiles as $cloudFile) {
+            $localFile = $this->findLocalFile($localFiles, $cloudFile['name']);
+            if (!$localFile || $cloudFile['modified'] > $localFile['modified']) {
+                $changes['to_download'][] = $cloudFile['name'];
+            }
+        }
+
+        return $changes;
+    }
+
+    protected function findCloudFile($cloudFiles, $name)
+    {
+        foreach ($cloudFiles as $file) {
+            if ($file['name'] === $name) {
+                return $file;
+            }
+        }
+        return null;
+    }
+
+    protected function findLocalFile($localFiles, $name)
+    {
+        foreach ($localFiles as $file) {
+            if ($file['name'] === $name) {
+                return $file;
+            }
+        }
+        return null;
+    }
+
+    protected function getLocalFiles()
+    {
+        $files = [];
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($this->syncPath)
+        );
+
+        foreach ($iterator as $file) {
+            if ($file->isFile()) {
+                $files[] = [
+                    'name' => $file->getFilename(),
+                    'path' => $file->getPathname(),
+                    'size' => $file->getSize(),
+                    'modified' => $file->getMTime()
+                ];
+            }
+        }
+
+        return $files;
+    }
+
+    protected function logSyncEvent($event, $data = [])
+    {
+        Log::channel('sync')->info($event, $data);
+    }
+
+    protected function validateSync()
+    {
+        if (!is_writable($this->syncPath)) {
+            throw new \Exception('Sync directory is not writable');
+        }
+
+        if (!$this->cloudStorage->isConnected()) {
+            throw new \Exception('Cloud storage is not connected');
+        }
+
+        return true;
+    }
+} 

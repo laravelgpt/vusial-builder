@@ -1,0 +1,96 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use {{ observerNamespace }}\{{ observerClass }};
+
+class {{ class }} extends Model
+{
+    use SoftDeletes;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        {{ fillable }}
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        {{ casts }}
+    ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        {{ dates }}
+    ];
+
+    /**
+     * Register the model observer.
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::observe({{ observerClass }}::class);
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    /**
+     * Scope a query to only include published pages.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('status', true)
+                    ->where('published_at', '<=', now());
+    }
+
+    /**
+     * Scope a query to only include draft pages.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeDraft($query)
+    {
+        return $query->where('status', false);
+    }
+
+    /**
+     * Scope a query to only include scheduled pages.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeScheduled($query)
+    {
+        return $query->where('status', true)
+                    ->where('published_at', '>', now());
+    }
+} 

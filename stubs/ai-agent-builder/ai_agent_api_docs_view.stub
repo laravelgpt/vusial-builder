@@ -1,0 +1,376 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">AI Agent API Documentation</h1>
+            <p class="mt-2 text-gray-600">Comprehensive documentation for the AI agent's API endpoints</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Sidebar Navigation -->
+            <div class="lg:col-span-1">
+                <div class="bg-white shadow rounded-lg p-6">
+                    <nav class="space-y-1">
+                        <a href="#authentication" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-900 hover:bg-gray-50">Authentication</a>
+                        <a href="#chat" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-900 hover:bg-gray-50">Chat Endpoints</a>
+                        <a href="#training" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-900 hover:bg-gray-50">Training Endpoints</a>
+                        <a href="#analytics" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-900 hover:bg-gray-50">Analytics Endpoints</a>
+                        <a href="#settings" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-900 hover:bg-gray-50">Settings Endpoints</a>
+                        <a href="#errors" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-900 hover:bg-gray-50">Error Handling</a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3 space-y-8">
+                <!-- Authentication -->
+                <section id="authentication" class="bg-white shadow rounded-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Authentication</h2>
+                    <p class="text-gray-600 mb-4">All API requests require authentication using an API key. Include your API key in the request headers:</p>
+                    
+                    <div class="bg-gray-50 rounded-md p-4 mb-4">
+                        <code class="text-sm text-gray-800">
+                            Authorization: Bearer YOUR_API_KEY
+                        </code>
+                    </div>
+
+                    <p class="text-gray-600">You can generate an API key in your account settings.</p>
+                </section>
+
+                <!-- Chat Endpoints -->
+                <section id="chat" class="bg-white shadow rounded-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Chat Endpoints</h2>
+
+                    <!-- Send Message -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Send Message</h3>
+                        <div class="bg-gray-50 rounded-md p-4 mb-4">
+                            <div class="flex items-center mb-2">
+                                <span class="px-2 py-1 text-xs font-semibold text-white bg-green-600 rounded">POST</span>
+                                <code class="ml-2 text-sm text-gray-800">/api/ai-agent/chat</code>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">Send a message to the AI agent and receive a response.</p>
+                            
+                            <h4 class="text-sm font-medium text-gray-900 mt-4 mb-2">Request Body:</h4>
+                            <pre class="bg-gray-100 rounded p-2 text-sm"><code>{
+    "message": "string",
+    "context": {
+        "conversation_id": "string",
+        "user_id": "string"
+    },
+    "options": {
+        "temperature": number,
+        "max_tokens": number
+    }
+}</code></pre>
+
+                            <h4 class="text-sm font-medium text-gray-900 mt-4 mb-2">Response:</h4>
+                            <pre class="bg-gray-100 rounded p-2 text-sm"><code>{
+    "success": true,
+    "data": {
+        "response": "string",
+        "tokens_used": number,
+        "conversation_id": "string"
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Get Chat History -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Get Chat History</h3>
+                        <div class="bg-gray-50 rounded-md p-4">
+                            <div class="flex items-center mb-2">
+                                <span class="px-2 py-1 text-xs font-semibold text-white bg-blue-600 rounded">GET</span>
+                                <code class="ml-2 text-sm text-gray-800">/api/ai-agent/chat/history</code>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">Retrieve the chat history for a specific conversation.</p>
+                            
+                            <h4 class="text-sm font-medium text-gray-900 mt-4 mb-2">Query Parameters:</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>conversation_id (required): The ID of the conversation</li>
+                                <li>limit (optional): Number of messages to return (default: 50)</li>
+                                <li>offset (optional): Number of messages to skip (default: 0)</li>
+                            </ul>
+
+                            <h4 class="text-sm font-medium text-gray-900 mt-4 mb-2">Response:</h4>
+                            <pre class="bg-gray-100 rounded p-2 text-sm"><code>{
+    "success": true,
+    "data": {
+        "messages": [
+            {
+                "id": "string",
+                "role": "user|assistant",
+                "content": "string",
+                "timestamp": "string",
+                "tokens_used": number
+            }
+        ],
+        "total": number,
+        "has_more": boolean
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Training Endpoints -->
+                <section id="training" class="bg-white shadow rounded-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Training Endpoints</h2>
+
+                    <!-- Start Training -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Start Training</h3>
+                        <div class="bg-gray-50 rounded-md p-4">
+                            <div class="flex items-center mb-2">
+                                <span class="px-2 py-1 text-xs font-semibold text-white bg-green-600 rounded">POST</span>
+                                <code class="ml-2 text-sm text-gray-800">/api/ai-agent/train</code>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">Start a new training session with the provided data.</p>
+                            
+                            <h4 class="text-sm font-medium text-gray-900 mt-4 mb-2">Request Body:</h4>
+                            <pre class="bg-gray-100 rounded p-2 text-sm"><code>{
+    "training_data": "file",
+    "data_format": "qa|conversation|custom",
+    "parameters": {
+        "epochs": number,
+        "batch_size": number,
+        "learning_rate": number
+    }
+}</code></pre>
+
+                            <h4 class="text-sm font-medium text-gray-900 mt-4 mb-2">Response:</h4>
+                            <pre class="bg-gray-100 rounded p-2 text-sm"><code>{
+    "success": true,
+    "data": {
+        "training_id": "string",
+        "status": "started",
+        "estimated_time": number
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Get Training Progress -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Get Training Progress</h3>
+                        <div class="bg-gray-50 rounded-md p-4">
+                            <div class="flex items-center mb-2">
+                                <span class="px-2 py-1 text-xs font-semibold text-white bg-blue-600 rounded">GET</span>
+                                <code class="ml-2 text-sm text-gray-800">/api/ai-agent/training-progress/{training_id}</code>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">Get the current progress of a training session.</p>
+
+                            <h4 class="text-sm font-medium text-gray-900 mt-4 mb-2">Response:</h4>
+                            <pre class="bg-gray-100 rounded p-2 text-sm"><code>{
+    "success": true,
+    "data": {
+        "status": "training|completed|failed",
+        "progress": number,
+        "current_epoch": number,
+        "loss": number,
+        "accuracy": number,
+        "time_elapsed": number
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Analytics Endpoints -->
+                <section id="analytics" class="bg-white shadow rounded-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Analytics Endpoints</h2>
+
+                    <!-- Get Analytics -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Get Analytics</h3>
+                        <div class="bg-gray-50 rounded-md p-4">
+                            <div class="flex items-center mb-2">
+                                <span class="px-2 py-1 text-xs font-semibold text-white bg-blue-600 rounded">GET</span>
+                                <code class="ml-2 text-sm text-gray-800">/api/ai-agent/analytics</code>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">Get analytics data for the AI agent.</p>
+
+                            <h4 class="text-sm font-medium text-gray-900 mt-4 mb-2">Query Parameters:</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>start_date (optional): Start date for analytics (ISO 8601)</li>
+                                <li>end_date (optional): End date for analytics (ISO 8601)</li>
+                                <li>metrics (optional): Comma-separated list of metrics to include</li>
+                            </ul>
+
+                            <h4 class="text-sm font-medium text-gray-900 mt-4 mb-2">Response:</h4>
+                            <pre class="bg-gray-100 rounded p-2 text-sm"><code>{
+    "success": true,
+    "data": {
+        "total_interactions": number,
+        "success_rate": number,
+        "avg_response_time": number,
+        "total_tokens": number,
+        "interaction_trends": {
+            "labels": ["string"],
+            "values": [number]
+        },
+        "response_time_distribution": {
+            "labels": ["string"],
+            "values": [number]
+        },
+        "recent_interactions": [
+            {
+                "timestamp": "string",
+                "message": "string",
+                "response": "string",
+                "tokens_used": number,
+                "status": "success|error"
+            }
+        ]
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Endpoints -->
+                <section id="settings" class="bg-white shadow rounded-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Settings Endpoints</h2>
+
+                    <!-- Get Settings -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Get Settings</h3>
+                        <div class="bg-gray-50 rounded-md p-4">
+                            <div class="flex items-center mb-2">
+                                <span class="px-2 py-1 text-xs font-semibold text-white bg-blue-600 rounded">GET</span>
+                                <code class="ml-2 text-sm text-gray-800">/api/ai-agent/settings</code>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">Get the current settings for the AI agent.</p>
+
+                            <h4 class="text-sm font-medium text-gray-900 mt-4 mb-2">Response:</h4>
+                            <pre class="bg-gray-100 rounded p-2 text-sm"><code>{
+    "success": true,
+    "data": {
+        "model": "string",
+        "temperature": number,
+        "max_tokens": number,
+        "response_format": "string",
+        "language": "string",
+        "tone": "string",
+        "system_prompt": "string",
+        "context_window": number,
+        "enable_memory": boolean,
+        "enable_learning": boolean
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Update Settings -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Update Settings</h3>
+                        <div class="bg-gray-50 rounded-md p-4">
+                            <div class="flex items-center mb-2">
+                                <span class="px-2 py-1 text-xs font-semibold text-white bg-yellow-600 rounded">PUT</span>
+                                <code class="ml-2 text-sm text-gray-800">/api/ai-agent/settings</code>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">Update the settings for the AI agent.</p>
+
+                            <h4 class="text-sm font-medium text-gray-900 mt-4 mb-2">Request Body:</h4>
+                            <pre class="bg-gray-100 rounded p-2 text-sm"><code>{
+    "model": "string",
+    "temperature": number,
+    "max_tokens": number,
+    "response_format": "string",
+    "language": "string",
+    "tone": "string",
+    "system_prompt": "string",
+    "context_window": number,
+    "enable_memory": boolean,
+    "enable_learning": boolean
+}</code></pre>
+
+                            <h4 class="text-sm font-medium text-gray-900 mt-4 mb-2">Response:</h4>
+                            <pre class="bg-gray-100 rounded p-2 text-sm"><code>{
+    "success": true,
+    "data": {
+        "message": "Settings updated successfully"
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Error Handling -->
+                <section id="errors" class="bg-white shadow rounded-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Error Handling</h2>
+                    <p class="text-gray-600 mb-4">The API uses conventional HTTP response codes to indicate the success or failure of requests.</p>
+
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">Error Response Format</h3>
+                            <pre class="bg-gray-100 rounded p-2 text-sm"><code>{
+    "success": false,
+    "error": {
+        "code": "string",
+        "message": "string",
+        "details": object
+    }
+}</code></pre>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">Common Error Codes</h3>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>400 - Bad Request: The request was invalid or cannot be served</li>
+                                <li>401 - Unauthorized: Authentication failed or user lacks necessary permissions</li>
+                                <li>403 - Forbidden: The request was understood but refused</li>
+                                <li>404 - Not Found: The requested resource does not exist</li>
+                                <li>429 - Too Many Requests: Rate limit exceeded</li>
+                                <li>500 - Internal Server Error: Something went wrong on the server</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // Highlight current section in navigation
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('nav a');
+
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            if (pageYOffset >= sectionTop - 60) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('bg-gray-50');
+            if (link.getAttribute('href').substring(1) === current) {
+                link.classList.add('bg-gray-50');
+            }
+        });
+    });
+});
+</script>
+@endpush
+@endsection 

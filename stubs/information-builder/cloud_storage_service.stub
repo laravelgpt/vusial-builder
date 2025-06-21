@@ -1,0 +1,129 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Google_Client;
+use Google_Service_Drive;
+use Spatie\Dropbox\Client as DropboxClient;
+
+class {{ class }}
+{
+    protected $client;
+    protected $provider;
+    protected $config;
+
+    public function __construct($provider = null)
+    {
+        $this->provider = $provider ?? config('cloud-storage.default');
+        $this->config = config('cloud-storage.providers.' . $this->provider);
+        $this->initializeClient();
+    }
+
+    {{ methods }}
+
+    protected function initializeClient()
+    {
+        switch ($this->provider) {
+            case 'google':
+                $this->client = $this->connectGoogleDrive();
+                break;
+            case 'mega':
+                $this->client = $this->connectMega();
+                break;
+            case 'dropbox':
+                $this->client = $this->connectDropbox();
+                break;
+            default:
+                throw new \Exception('Unsupported cloud storage provider');
+        }
+    }
+
+    protected function getClient()
+    {
+        if (!$this->client) {
+            $this->initializeClient();
+        }
+        return $this->client;
+    }
+
+    protected function handleUploadError($error)
+    {
+        Log::error('Cloud storage upload failed', [
+            'provider' => $this->provider,
+            'error' => $error
+        ]);
+        throw new \Exception('Upload failed: ' . $error);
+    }
+
+    protected function handleDownloadError($error)
+    {
+        Log::error('Cloud storage download failed', [
+            'provider' => $this->provider,
+            'error' => $error
+        ]);
+        throw new \Exception('Download failed: ' . $error);
+    }
+
+    protected function validateFile($file)
+    {
+        if (!file_exists($file)) {
+            throw new \Exception('File not found');
+        }
+
+        if (!is_readable($file)) {
+            throw new \Exception('File is not readable');
+        }
+
+        return true;
+    }
+
+    protected function getStorageInfo()
+    {
+        switch ($this->provider) {
+            case 'google':
+                return $this->getGoogleDriveInfo();
+            case 'mega':
+                return $this->getMegaInfo();
+            case 'dropbox':
+                return $this->getDropboxInfo();
+            default:
+                return null;
+        }
+    }
+
+    protected function getGoogleDriveInfo()
+    {
+        $service = new Google_Service_Drive($this->client);
+        $about = $service->about->get(['fields' => 'storageQuota']);
+        
+        return [
+            'total' => $about->getStorageQuota()->getLimit(),
+            'used' => $about->getStorageQuota()->getUsage(),
+            'free' => $about->getStorageQuota()->getLimit() - $about->getStorageQuota()->getUsage()
+        ];
+    }
+
+    protected function getMegaInfo()
+    {
+        $account = $this->client->getAccountInfo();
+        
+        return [
+            'total' => $account->getStorageLimit(),
+            'used' => $account->getStorageUsed(),
+            'free' => $account->getStorageLimit() - $account->getStorageUsed()
+        ];
+    }
+
+    protected function getDropboxInfo()
+    {
+        $account = $this->client->getAccountInfo();
+        
+        return [
+            'total' => $account->getStorageLimit(),
+            'used' => $account->getStorageUsed(),
+            'free' => $account->getStorageLimit() - $account->getStorageUsed()
+        ];
+    }
+} 

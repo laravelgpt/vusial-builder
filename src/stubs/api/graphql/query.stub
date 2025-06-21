@@ -1,0 +1,37 @@
+<?php
+
+namespace App\GraphQL\Queries;
+
+use GraphQL\Type\Definition\Type;
+use Rebing\GraphQL\Support\Query;
+use Rebing\GraphQL\Support\Facades\GraphQL;
+
+class {{ DummyQuery }} extends Query
+{
+    protected $attributes = [
+        'name' => '{{ DummyQuery }}',
+        'description' => 'A query for {{ DummyType }}',
+    ];
+
+    public function type(): Type
+    {
+        return Type::listOf(GraphQL::type('{{ DummyType }}'));
+    }
+
+    public function args(): array
+    {
+        return [
+            'id' => [
+                'name' => 'id',
+                'type' => Type::id(),
+            ],
+            // Add your arguments here
+        ];
+    }
+
+    public function resolve($root, $args)
+    {
+        // Add your resolver logic here
+        return [];
+    }
+} 

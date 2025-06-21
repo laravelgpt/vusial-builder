@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laravel Visual Builder Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #2563eb;
+            --color-primary-hover: #1d4ed8;
+            --color-text-primary: #111827;
+            --color-text-secondary: #4b5563;
+            --color-bg-primary: #ffffff;
+            --color-bg-secondary: #f9fafb;
+            --color-border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        .dark {
+            --color-primary: #3b82f6;
+            --color-primary-hover: #60a5fa;
+            --color-text-primary: #f9fafb;
+            --color-text-secondary: #9ca3af;
+            --color-bg-primary: #111827;
+            --color-bg-secondary: #1f2937;
+            --color-border: #374151;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg-secondary);
+            color: var(--color-text-secondary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--color-text-primary);
+        }
+
+        /* Base styles */
+        .sidebar {
+            height: 100vh; /* Full height */
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            max-width: 280px;
+            padding-top: 4rem; /* Space for nav */
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #CBD5E0 #F7FAFC;
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            background: var(--color-bg-primary);
+        }
+        @media (min-width: 768px) {
+            .sidebar {
+                height: calc(100vh - 4rem);
+                position: sticky;
+                top: 4rem;
+                transform: translateX(0);
+                left: 0;
+            }
+        }
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 39;
+        }
+        .sidebar.active ~ .sidebar-overlay {
+            display: block;
+        }
+        .content {
+            max-width: 65ch;
+        }
+        pre {
+            background: #1a1a1a !important;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        code {
+            font-family: 'Fira Code', monospace;
+        }
+        .nav-link {
+            @apply text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200;
+        }
+        .nav-link.active {
+            @apply bg-gray-100 text-gray-900 transform scale-105;
+        }
+        .dark .nav-link {
+            color: var(--color-text-secondary);
+        }
+        .dark .nav-link:hover {
+            color: var(--color-text-primary);
+        }
+        .dark .nav-link.active {
+            background-color: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+        }
+        .section {
+            @apply mb-12 scroll-mt-20 transition-all duration-300;
+        }
+        .section-title {
+            @apply text-2xl md:text-3xl font-bold mb-6 transition-all duration-300;
+            color: var(--color-text-primary);
+        }
+        .subsection-title {
+            @apply text-xl md:text-2xl font-bold mb-4 transition-all duration-300;
+            color: var(--color-text-primary);
+        }
+        .card {
+            background-color: var(--color-bg-primary);
+            @apply rounded-xl p-4 md:p-6 mb-8 transition-all duration-300;
+            box-shadow: var(--shadow-md);
+        }
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        .code-block {
+            @apply bg-gray-800 rounded-lg p-4 mb-4 overflow-x-auto transition-all duration-300;
+        }
+        .feature-list {
+            @apply space-y-2 md:space-y-3 text-gray-700 animate-fade-in;
+        }
+        .feature-item {
+            @apply flex items-center space-x-2 transition-all duration-200 hover:transform hover:translate-x-2;
+        }
+        .feature-icon {
+            @apply h-5 w-5 md:h-6 md:w-6 text-blue-500 transition-colors duration-200;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .content {
+                max-width: 100%;
+            }
+            .card {
+                margin: 1rem 0;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        .animate-scale-in {
+            animation: scaleIn 0.5s ease-out forwards;
+        }
+
+        /* Interactive Elements */
+        .interactive-card {
+            @apply transition-all duration-300 cursor-pointer;
+        }
+        .interactive-card:hover {
+            @apply transform -translate-y-2 shadow-xl;
+        }
+        .interactive-button {
+            @apply transition-all duration-300 transform hover:scale-105;
+        }
+        .interactive-input {
+            @apply transition-all duration-300 focus:ring-2 focus:border-blue-500;
+            border-color: var(--color-border);
+            background-color: var(--color-bg-primary);
+        }
+        .dark .interactive-input:focus {
+            --tw-ring-color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        /* Loading States */
+        .loading {
+            @apply animate-pulse bg-gray-200;
+        }
+        .loading-text {
+            @apply animate-pulse bg-gray-200 h-4 rounded;
+        }
+
+        /* Dark Mode Support */
+            .dark-mode {
+                @apply bg-gray-900 text-white;
+            }
+            .dark-mode .card {
+                @apply bg-gray-800;
+            }
+            .dark-mode .nav-link {
+                @apply text-gray-300 hover:text-white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-lg fixed w-full top-0 z-50 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        <h1 class="ml-2 text-xl font-bold text-gray-800 dark:text-white">Laravel Visual Builder</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="https://github.com/laravel-builder/visual-builder" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        <span class="ml-2 hidden sm:inline">GitHub</span>
+                    </a>
+                    <a href="#installation" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors duration-200 hidden md:block">
+                        Get Started
+                    </a>
+                    <button id="theme-toggle" class="p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white focus:outline-none">
+                        <svg id="theme-light-icon" class="h-6 w-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <svg id="theme-dark-icon" class="h-6 w-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    </button>
+                     <!-- Mobile menu button -->
+                    <div class="md:hidden flex items-center">
+                        <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none">
+                            <span class="sr-only">Open main menu</span>
+                            <svg id="menu-open-icon" class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                            <svg id="menu-close-icon" class="h-6 w-6 hidden" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                    </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex pt-16">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white dark:bg-gray-800 shadow-lg sidebar">
+            <nav class="p-4">
+                <div class="mb-6">
+                    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Getting Started</h2>
+                    <ul class="space-y-1">
+                        <li><a href="#introduction" class="nav-link">Introduction</a></li>
+                        <li><a href="#features" class="nav-link">Features</a></li>
+                        <li><a href="#requirements" class="nav-link">Requirements</a></li>
+                        <li><a href="#installation" class="nav-link">Installation</a></li>
+                    </ul>
+                </div>
+                <div class="mb-6">
+                    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">The Builder</h2>
+                    <ul class="space-y-1">
+                        <li><a href="#builder-interface" class="nav-link">The Interface</a></li>
+                        <li><a href="#components" class="nav-link">Components Overview</a></li>
+                        <li><a href="#ui-examples" class="nav-link">UI Examples</a></li>
+                        <li><a href="#livewire" class="nav-link">Livewire Integration</a></li>
+                    </ul>
+                </div>
+                <div class="mb-6">
+                    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Builder Services</h2>
+                    <ul class="space-y-1">
+                        <li><a href="#service-visual" class="nav-link">Visual Builder</a></li>
+                        <li><a href="#service-ai" class="nav-link">AI Agent Builder</a></li>
+                        <li><a href="#service-security" class="nav-link">Security Builder</a></li>
+                    </ul>
+                </div>
+                <div class="mb-6">
+                    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Configuration</h2>
+                    <ul class="space-y-1">
+                        <li><a href="#configuration" class="nav-link">Base Configuration</a></li>
+                        <li><a href="#environment" class="nav-link">Environment</a></li>
+                        <li><a href="#visualization" class="nav-link">Visualization</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Advanced</h2>
+                    <ul class="space-y-1">
+                        <li><a href="#middleware" class="nav-link">Middleware</a></li>
+                        <li><a href="#feature-flags" class="nav-link">Feature Flags</a></li>
+                        <li><a href="#real-time" class="nav-link">Real-time Updates</a></li>
+                        <li><a href="#security" class="nav-link">Security</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+        <div class="sidebar-overlay md:hidden"></div>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 md:p-8 lg:p-12">
+            <div class="max-w-7xl mx-auto">
+                <!-- Introduction -->
+                <section id="introduction" class="section">
+                    <h2 class="section-title text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Introduction</h2>
+                    <div class="card">
+                        <p class="text-lg">
+                            Laravel Visual Builder is a powerful package for building and managing visual components, AI agents, security features, and cloud storage integrations in your Laravel applications.
+                        </p>
+                        <div class="flex flex-wrap items-center gap-4 mt-8">
+                            <a href="#installation" class="btn-primary bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-blue-800 transform hover:-translate-y-1 transition-all duration-300">
+                                Quick Start
+                            </a>
+                            <a href="https://github.com/laravel-builder/visual-builder" class="btn-secondary flex items-center gap-2 px-6 py-4 rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-900 dark:hover:text-white transition-all duration-300">
+                                <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                                <span class="text-lg">View on GitHub</span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Features -->
+                <section id="features" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold mb-12">Core Features</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Visual Component Builder</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Visually create, customize, and manage your Laravel components with an intuitive drag-and-drop interface. Streamline your development workflow and build beautiful UIs faster than ever.</p>
+                        </div>
+
+                        <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">AI Agent Integration</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Seamlessly integrate powerful AI agents into your application for intelligent automation, content generation, and advanced data analysis.</p>
+                        </div>
+
+                        <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Robust Security & Middleware</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Protect your application with built-in security features, including middleware control, input sanitization, and authorization through Laravel's gates and policies.</p>
+                        </div>
+
+                        <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Dynamic Real-Time UI</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Build reactive and dynamic interfaces with deep integration for Laravel Livewire and real-time updates powered by Laravel Reverb.</p>
+                        </div>
+                        
+                        <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Flexible Storage Options</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Easily configure your components to use different storage disks, from local filesystems to cloud providers like Amazon S3.</p>
+                        </div>
+
+                        <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.664 1.208-.766M11.42 15.17l-4.636 4.636a2.121 2.121 0 01-3 0l-1.747-1.747a2.121 2.121 0 010-3l4.636-4.636m1.028-1.028l2.496-3.03c.317-.384.74-.664 1.208-.766m-1.208.766L9.622 6.028a2.121 2.121 0 00-3 0l-1.747 1.747a2.121 2.121 0 000 3l4.636 4.636m0.007-0.007l2.496-3.03" /></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Advanced Developer Tools</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Fine-tune your application with powerful developer-focused tools like feature flags for gradual rollouts and a centralized visualization configuration.</p>
+                        </div>
+                        <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-teal-400 to-teal-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Advanced Media Library</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Manage your media files with a powerful, integrated library that supports various file types, conversions, and storage options.</p>
+                        </div>
+                        <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-pink-400 to-pink-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m-7.5-2.226A3 3 0 0110.5 18.75a3 3 0 01-3.741-.479m4.931-1.24a7.5 7.5 0 01-4.931 1.241A7.5 7.5 0 013 13.5a7.5 7.5 0 0114.24-2.431a7.5 7.5 0 01-4.931 1.241z" /></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Role-Based Access Control</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Integrates with Laravel's native permission system, allowing you to control who can access the builder and manage specific components.</p>
+                        </div>
+                        <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75" /></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Automated Backups</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Configure and manage automated backups for your application's database and files, storing them securely on any supported storage disk.</p>
+                        </div>
+                        <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" /></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Extensible Plugin Architecture</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Develop your own plugins and extensions to add custom functionality, components, and integrations to the Visual Builder.</p>
+                        </div>
+                        <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-rose-400 to-rose-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.572L16.5 21.75l-.398-1.178a3.375 3.375 0 00-2.455-2.456L12.75 18l1.178-.398a3.375 3.375 0 002.455-2.456L16.5 14.25l.398 1.178a3.375 3.375 0 002.456 2.456L20.25 18l-1.178.398a3.375 3.375 0 00-2.456 2.456z" /></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Advanced Theming</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Go beyond basic styling with a deep theming system that allows for custom color palettes, typography, and component-level design tokens.</p>
+                        </div>
+                         <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-lime-400 to-lime-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-4.991-2.691L12 12.728l-2.09-2.09a8.25 8.25 0 00-11.667 0L2.985 14.652m9.022-2.691L12 14.652l2.09 2.09a8.25 8.25 0 0011.667 0l2.09-2.09" /></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Component Versioning</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Keep track of component changes with a built-in version history. Roll back to previous versions or compare changes directly within the builder.</p>
+                        </div>
+                        <div class="feature-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+                            <div class="h-16 w-16 bg-gradient-to-br from-fuchsia-400 to-fuchsia-600 rounded-2xl flex items-center justify-center mb-6">
+                                <svg class="h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Powerful CLI Tools</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">Scaffold new components, manage configurations, and run build processes directly from the command line with custom Artisan commands.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Requirements -->
+                <section id="requirements" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold mb-12">Requirements</h2>
+                    <div class="requirements-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="requirement-card bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                            <div class="flex items-center gap-4">
+                                <div class="flex-shrink-0">
+                                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold">PHP >= 8.1</h3>
+                                    <p class="mt-2">Latest PHP version required for optimal performance</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="requirement-card bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                            <div class="flex items-center gap-4">
+                                <div class="flex-shrink-0">
+                                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold">Laravel Versions</h3>
+                                    <div class="flex flex-wrap gap-2 mt-3">
+                                        <span class="px-3 py-1 text-sm font-semibold bg-green-100 text-green-800 rounded-full">10.0+</span>
+                                        <span class="px-3 py-1 text-sm font-semibold bg-blue-100 text-blue-800 rounded-full">11.0+</span>
+                                        <span class="px-3 py-1 text-sm font-semibold bg-purple-100 text-purple-800 rounded-full">12.0+</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="requirement-card bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                            <div class="flex items-center gap-4">
+                                <div class="flex-shrink-0">
+                                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold">Composer</h3>
+                                    <p class="mt-2">Package manager for PHP dependencies</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Installation -->
+                <section id="installation" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold mb-12">Installation</h2>
+                    <div class="installation-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl">
+                        <p class="text-lg mb-6">Install the package via Composer:</p>
+                        <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                            <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">
+                                Copy
+                            </button>
+                            <pre class="text-white"><code class="language-bash">composer require laravel-builder/visual-builder</code></pre>
+                        </div>
+                        
+                        <p class="text-lg mt-8 mb-6">You can publish the configuration file with this command:</p>
+                        <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                            <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">
+                                Copy
+                            </button>
+                            <pre class="text-white"><code class="language-bash">php artisan vendor:publish --provider="LaravelBuilder\VisualBuilder\VisualBuilderServiceProvider" --tag="config"</code></pre>
+                        </div>
+
+                        <p class="text-lg mt-8 mb-6">This is the main configuration file for the Visual Builder, where you can set up middleware, component paths, and more. For advanced customization, you can also publish other resources:</p>
+                        <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                            <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">
+                                Copy
+                            </button>
+                            <pre class="text-white"><code class="language-bash"># Publish the views
+php artisan vendor:publish --provider="LaravelBuilder\VisualBuilder\VisualBuilderServiceProvider" --tag="views"
+
+# Publish the JavaScript assets
+php artisan vendor:publish --provider="LaravelBuilder\VisualBuilder\VisualBuilderServiceProvider" --tag="assets"
+
+# Publish the database seeders
+php artisan vendor:publish --provider="LaravelBuilder\VisualBuilder\VisualBuilderServiceProvider" --tag="seeders"
+</code></pre>
+                        </div>
+
+                        <div class="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                            <div class="flex items-start gap-3">
+                                <svg class="h-6 w-6 text-blue-600 dark:text-blue-400 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <p class="text-blue-800 dark:text-blue-200 text-lg">
+                                    After installation, make sure to run <code class="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded text-blue-900 dark:text-blue-100">php artisan config:cache</code> to cache the configuration files.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Builder Interface -->
+                <section id="builder-interface" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold mb-12">The Builder Interface</h2>
+                    <div class="card">
+                        <p class="text-lg mb-6">
+                            The heart of Laravel Visual Builder is its intuitive, user-friendly interface, designed to make page and component creation as seamless as possible. The interface is primarily composed of three key areas:
+                        </p>
+                        <div class="space-y-8 mt-8">
+                            <div>
+                                <h3 class="subsection-title text-2xl">The Canvas</h3>
+                                <p>This is your main work area where you can see a live, interactive preview of the page or component you are building. You can directly manipulate elements on the canvas, drag and drop new components, and see changes in real-time.</p>
+                            </div>
+                            <div>
+                                <h3 class="subsection-title text-2xl">Component Panel</h3>
+                                <p>Located on the side, this panel contains a library of all available components—from basic HTML elements to complex, data-driven Laravel components. It's organized by category for easy navigation. Any custom component you create is automatically registered here.</p>
+                            </div>
+                            <div>
+                                <h3 class="subsection-title text-2xl">Property Inspector</h3>
+                                <p>When you select a component on the canvas, the inspector panel shows all its configurable properties (props). You can change text, colors, spacing, data bindings, and other settings here, with changes reflected instantly on the canvas.</p>
+                            </div>
+                            <div>
+                                <h3 class="subsection-title text-2xl">Data Binding</h3>
+                                <p>The property inspector allows you to bind component properties to various data sources. You can link a property to a specific model attribute, a configuration value, or the result of a query. This makes creating dynamic, data-driven components incredibly efficient.</p>
+                            </div>
+                            <div>
+                                <h3 class="subsection-title text-2xl">Custom Component Integration</h3>
+                                <p>To add your own component to the builder, you simply create a standard Laravel component. The Visual Builder automatically discovers any components in your `app/View/Components` directory and makes them available in the component panel. No extra configuration is needed.</p>
+                            </div>
+                        </div>
+                        <div class="mt-8 p-6 bg-gray-100 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                            <p class="font-medium">A visual diagram or screenshot of the builder interface would go here.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Builder Services -->
+                <section id="builder-services" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold mb-12">Builder Services</h2>
+                    <div class="space-y-12">
+                        <div id="service-visual" class="card">
+                            <h3 class="subsection-title text-2xl">The Visual Builder</h3>
+                            <p class="text-lg">The core of the package is the Visual Builder itself. It's a powerful and intuitive interface for creating, managing, and composing your UI. By combining pre-built components with your own custom creations, you can design complex interfaces with ease. It's designed to accelerate development by giving you a real-time preview of your application's frontend.</p>
+                        </div>
+                        <div id="service-ai" class="card">
+                            <h3 class="subsection-title text-2xl">The AI Agent Builder</h3>
+                            <p class="text-lg">Leverage the AI Agent Builder to integrate intelligent features directly into your application. You can create and configure AI agents that perform tasks like content generation, data analysis, or interacting with users via a chat interface. This service connects to major AI providers and streamlines the process of adding machine learning capabilities to your project.</p>
+                        </div>
+                        <div id="service-security" class="card">
+                            <h3 class="subsection-title text-2xl">The Security Builder</h3>
+                            <p class="text-lg">The Security Builder provides a suite of tools and configurations to harden your application. It allows you to enforce security best practices, such as configuring middleware, setting up content security policies, and integrating malware scanners. This builder helps ensure that your application is not only functional but also secure from common threats.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Configuration -->
+                <section id="configuration" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold mb-12">Base Configuration</h2>
+                    <div class="card">
+                        <p class="text-lg mb-6">Configure the core settings of Laravel Visual Builder through the published configuration file:</p>
+                        <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                            <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">
+                                Copy
+                            </button>
+                            <pre class="text-white"><code class="language-php">// config/visual-builder.php
+
+return [
+    'prefix' => 'builder',
+    'middleware' => ['web', 'auth'],
+    'storage' => [
+        'disk' => 'local',
+        'path' => 'builder',
+    ],
+    'components' => [
+        'namespace' => 'App\Components',
+        'path' => app_path('Components'),
+    ],
+];
+</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="environment" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold mb-12">Environment Configuration</h2>
+                    <div class="card">
+                        <p class="text-lg mb-6">Essential environment variables for Laravel Visual Builder:</p>
+                        <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                            <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">
+                                Copy
+                            </button>
+                            <pre class="text-white"><code class="language-env">VISUAL_BUILDER_API_KEY=your_api_key
+VISUAL_BUILDER_DEBUG=true
+VISUAL_BUILDER_STORAGE_DISK=local
+VISUAL_BUILDER_CACHE_ENABLED=true</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="visualization" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold mb-12">Visualization Settings</h2>
+                    <div class="card">
+                        <p class="text-lg mb-6">Configure the visual aspects of your components via the `config/visual-builder.php` file. You can define theme colors, fonts, and other styling options.</p>
+                        <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                            <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button">Copy</button>
+                            <pre class="text-white"><code class="language-php">// config/visual-builder.php
+'visualization' => [
+    'theme' => 'default', // or 'dark'
+    'colors' => [
+        'primary' => '#3490dc',
+        'secondary' => '#6574cd',
+        'danger' => '#e3342f',
+    ],
+    'fonts' => [
+        'body' => '"Nunito", sans-serif',
+        'heading' => '"Montserrat", sans-serif',
+    ],
+    'spacing' => [
+        'default' => '1rem',
+        'large' => '2rem',
+    ]
+],
+</code></pre>
+                        </div>
+                        <p class="text-lg mt-8">These settings can then be programmatically accessed within your components or services to apply consistent styling across your application, ensuring a cohesive user experience.</p>
+                    </div>
+                </section>
+
+                <!-- Components -->
+                <section id="components" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold mb-12">Components Overview</h2>
+                    <div class="card">
+                        <p class="text-lg mb-8">
+                            Laravel Visual Builder is built on a powerful and flexible component system. Components are reusable, self-contained blocks of code that can be anything from a simple button to a complex, data-driven widget. This modular approach makes it easy to manage and scale your application's frontend.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            <div class="component-type-card p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+                                <h3 class="text-xl font-bold mb-4">UI Components</h3>
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li>Forms and Inputs</li>
+                                    <li>Navigation Elements</li>
+                                    <li>Data Display</li>
+                                </ul>
+                            </div>
+                            <div class="component-type-card p-6 bg-white rounded-xl shadow-lg">
+                                <h3 class="text-xl font-bold text-gray-900 mb-4">Layout Components</h3>
+                                <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                    <li>Grid Systems</li>
+                                    <li>Containers</li>
+                                    <li>Flexbox Layouts</li>
+                                </ul>
+                            </div>
+                            <div class="component-type-card p-6 bg-white rounded-xl shadow-lg">
+                                <h3 class="text-xl font-bold text-gray-900 mb-4">Interactive Components</h3>
+                                <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                    <li>Modals and Dialogs</li>
+                                    <li>Tooltips</li>
+                                    <li>Dropdowns</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="ui-examples" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold text-gray-900 mb-12">UI Examples</h2>
+                    <div class="card">
+                        <div class="space-y-12">
+                            <div class="example-component p-6 bg-gray-50 rounded-xl">
+                                <h3 class="text-xl font-bold text-gray-900 mb-4">Basic Form Component</h3>
+                                <div class="preview-area p-4 border border-gray-200 rounded-lg mb-4">
+                                    <!-- Form Preview -->
+                                    <form class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Username</label>
+                                            <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium">Email</label>
+                                            <input type="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm interactive-input">
+                                        </div>
+                                        <button class="bg-blue-600 text-white px-4 py-2 rounded-md">Submit</button>
+                                    </form>
+                                </div>
+                                <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                                    <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">Copy</button>
+                                    <pre class="text-white"><code class="language-php">// app/View/Components/FormComponent.php
+namespace App\View\Components;
+
+use Illuminate\View\Component;
+
+class FormComponent extends Component
+{
+    public function render()
+    {
+        return view('components.form');
+    }
+}
+</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">User Profile Card</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4 flex justify-center">
+                                    <!-- Card Preview -->
+                                    <div class="max-w-sm rounded-lg overflow-hidden shadow-lg bg-white dark:bg-gray-700">
+                                        <img class="w-full" src="https://via.placeholder.com/400x250" alt="User avatar">
+                                        <div class="px-6 py-4">
+                                            <div class="font-bold text-xl mb-2">Alex Doe</div>
+                                            <p class="text-base">
+                                                Software Engineer at Laravel Visual Builder. Passionate about open-source and building amazing tools for developers.
+                                            </p>
+                                        </div>
+                                        <div class="px-6 pt-4 pb-2">
+                                            <span class="inline-block bg-gray-200 dark:bg-gray-600 rounded-full px-3 py-1 text-sm font-semibold mr-2 mb-2">#PHP</span>
+                                            <span class="inline-block bg-gray-200 dark:bg-gray-600 rounded-full px-3 py-1 text-sm font-semibold mr-2 mb-2">#Laravel</span>
+                                            <span class="inline-block bg-gray-200 dark:bg-gray-600 rounded-full px-3 py-1 text-sm font-semibold mr-2 mb-2">#Vue</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                                    <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">Copy</button>
+                                    <pre class="text-white"><code class="language-php">// app/View/Components/UserProfileCard.php
+namespace App\View\Components;
+
+use Illuminate\View\Component;
+
+class UserProfileCard extends Component
+{
+    public function __construct(
+        public string $name,
+        public string $title,
+        public string $avatar,
+        public array $tags = []
+    ) {}
+
+    public function render()
+    {
+        return view('components.user-profile-card');
+    }
+}
+
+// And in your blade file:
+// <x-user-profile-card name="Alex Doe" title="Software Engineer" ... />
+</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Dynamic Data Table</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
+                                    <!-- Table Preview -->
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                                <tr>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Name</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Title</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Role</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap">Jane Cooper</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">Regional Paradigm Technician</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">Admin</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap">Cody Fisher</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">Product Directives Officer</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">Owner</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                                    <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">Copy</button>
+                                    <pre class="text-white"><code class="language-php">// app/Livewire/UsersTable.php
+namespace App\Livewire;
+
+use App\Models\User;
+use Livewire\Component;
+
+class UsersTable extends Component
+{
+    public function render()
+    {
+        return view('livewire.users-table', [
+            'users' => User::latest()->paginate(10),
+        ]);
+    }
+}
+</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Interactive Modal</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4 text-center">
+                                    <button id="open-modal-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md">Open Modal</button>
+                                </div>
+
+                                <div id="modal-container" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                                    <div id="modal-content" class="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-xl">
+                                        <h2 class="text-2xl font-bold mb-4">Modal Title</h2>
+                                        <p>This is the content of the modal. You can put any text or elements here.</p>
+                                        <button id="close-modal-btn" class="mt-6 bg-red-600 text-white px-4 py-2 rounded-md">Close</button>
+                                    </div>
+                                </div>
+
+                                <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                                    <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">Copy</button>
+                                    <pre class="text-white"><code class="language-javascript">// Simple modal control with JavaScript
+const openBtn = document.getElementById('open-modal-btn');
+const closeBtn = document.getElementById('close-modal-btn');
+const modal = document.getElementById('modal-container');
+
+openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+modal.addEventListener('click', (e) => {
+    if (e.target.id === 'modal-container') {
+        modal.classList.add('hidden');
+    }
+});
+</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Alerts</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4 space-y-4">
+                                    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4" role="alert">
+                                        <p class="font-bold">Informational</p>
+                                        <p>This is an informational alert.</p>
+                                    </div>
+                                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
+                                        <p class="font-bold">Success</p>
+                                        <p>Your action was successful.</p>
+                                    </div>
+                                    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+                                        <p class="font-bold">Warning</p>
+                                        <p>Please be aware of this warning.</p>
+                                    </div>
+                                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+                                        <p class="font-bold">Danger</p>
+                                        <p>Something went terribly wrong.</p>
+                                    </div>
+                                </div>
+                                <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                                    <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">Copy</button>
+                                    <pre class="text-white"><code class="language-php">// app/View/Components/Alert.php
+public function __construct(public string $type = 'info') {}
+
+// And in your blade file:
+// <x-alert type="success" title="Success" message="Your action was successful." />
+</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Pagination</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4 flex justify-center">
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700">Previous</a>
+                                        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium">1</a>
+                                        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-blue-500 text-white text-sm font-medium">2</a>
+                                        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium">3</a>
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700">Next</a>
+                                    </nav>
+                                </div>
+                                 <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                                    <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">Copy</button>
+                                    <pre class="text-white"><code class="language-php">// Blade component for pagination
+// resources/views/components/pagination.blade.php
+// Can be used with Laravel's paginator:
+// {{ $users->links('components.pagination') }}
+</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Progress Bar</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
+                                        <div class="bg-blue-600 h-4 rounded-full" style="width: 45%"></div>
+                                    </div>
+                                </div>
+                                <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                                    <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">Copy</button>
+                                    <pre class="text-white"><code class="language-php">// <x-progress-bar percentage="45" />
+</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Tabs</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
+                                    <div>
+                                        <div class="border-b border-gray-200 dark:border-gray-700">
+                                            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                                                <button data-tab-toggle="tab-panel-1" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">Profile</button>
+                                                <button data-tab-toggle="tab-panel-2" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm hover:border-gray-300">Account</button>
+                                                <button data-tab-toggle="tab-panel-3" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm hover:border-gray-300">Settings</button>
+                                            </nav>
+                                        </div>
+                                        <div class="mt-4">
+                                            <div id="tab-panel-1" class="tab-content">Content for Profile tab.</div>
+                                            <div id="tab-panel-2" class="tab-content hidden">Content for Account tab.</div>
+                                            <div id="tab-panel-3" class="tab-content hidden">Content for Settings tab.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                                    <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">Copy</button>
+                                    <pre class="text-white"><code class="language-javascript">// JavaScript to handle tab switching
+// See script at the bottom of the page
+</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Accordion</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
+                                    <div class="accordion-item border-b dark:border-gray-700">
+                                        <h2>
+                                            <button type="button" class="accordion-trigger flex items-center justify-between w-full py-5 font-medium text-left">
+                                                <span>What is Laravel Visual Builder?</span>
+                                                <svg class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                            </button>
+                                        </h2>
+                                        <div class="accordion-content hidden py-5">
+                                            <p>It's a comprehensive tool for building UIs in Laravel.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                                    <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">Copy</button>
+                                    <pre class="text-white"><code class="language-javascript">// JavaScript to handle accordion toggling
+// See script at the bottom of the page
+</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Toggle Switch</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" value="" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                        <span class="ml-3 text-sm font-medium">Toggle me</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Empty State</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4 text-center">
+                                    <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>
+                                    <h3 class="mt-2 text-sm font-medium">No projects</h3>
+                                    <p class="mt-1 text-sm">Get started by creating a new project.</p>
+                                    <div class="mt-6">
+                                        <button type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                        New Project
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Toast Notification</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4 text-center">
+                                    <button id="show-toast-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md">Show Toast</button>
+                                </div>
+                                <div id="toast-container" class="hidden fixed top-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg">
+                                    <p>Your profile was updated successfully!</p>
+                                </div>
+                                <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                                    <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">Copy</button>
+                                    <pre class="text-white"><code class="language-javascript">// JavaScript to show and hide the toast
+// See script at the bottom of the page
+</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Tooltip</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4 text-center">
+                                    <div class="relative inline-block">
+                                        <button class="tooltip-trigger bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded">Hover over me</button>
+                                        <div class="tooltip-content absolute bottom-full mb-2 w-max bg-gray-800 text-white text-xs rounded py-1 px-2 invisible">
+                                            This is a tooltip
+                                            <div class="tooltip-arrow" data-popper-arrow></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                                    <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button" onclick="copyCode(this)">Copy</button>
+                                    <pre class="text-white"><code class="language-javascript">// Requires a library like Popper.js for positioning
+// See script at the bottom of the page
+</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Slider</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
+                                    <label for="default-range" class="block mb-2 text-sm font-medium">Opacity</label>
+                                    <input id="default-range" type="range" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Date Picker</h3>
+                                 <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
+                                     <input type="date" class="interactive-input rounded-md">
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Stat Cards</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow">
+                                            <h4 class="text-sm font-medium">Total Subscribers</h4>
+                                            <p class="text-3xl font-bold">71,897</p>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow">
+                                            <h4 class="text-sm font-medium">Avg. Open Rate</h4>
+                                            <p class="text-3xl font-bold">58.16%</p>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow">
+                                            <h4 class="text-sm font-medium">Avg. Click Rate</h4>
+                                            <p class="text-3xl font-bold">24.57%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Avatars</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4 flex items-center space-x-4">
+                                    <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800" src="https://via.placeholder.com/40" alt="">
+                                    <img class="inline-block h-10 w-10 rounded-full ring-2 ring-white dark:ring-gray-800" src="https://via.placeholder.com/40" alt="">
+                                    <img class="inline-block h-12 w-12 rounded-full ring-2 ring-white dark:ring-gray-800" src="https://via.placeholder.com/40" alt="">
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">Login Form</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
+                                     <div class="w-full max-w-md">
+                                        <form class="bg-white dark:bg-gray-700 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                                            <div class="mb-4">
+                                                <label class="block text-sm font-bold mb-2" for="username">Username</label>
+                                                <input class="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline interactive-input" id="username" type="text" placeholder="Username">
+                                            </div>
+                                            <div class="mb-6">
+                                                <label class="block text-sm font-bold mb-2" for="password">Password</label>
+                                                <input class="shadow appearance-none border rounded w-full py-2 px-3 mb-3 leading-tight focus:outline-none focus:shadow-outline interactive-input" id="password" type="password" placeholder="******************">
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+                                                Sign In
+                                                </button>
+                                                <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">Forgot Password?</a>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="example-component p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <h3 class="text-xl font-bold mb-4">File Input</h3>
+                                <div class="preview-area p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
+                                    <label class="block">
+                                        <span class="sr-only">Choose profile photo</span>
+                                        <input type="file" class="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="livewire" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold text-gray-900 mb-12">Livewire Integration</h2>
+                    <div class="card">
+                        <p class="text-gray-700 text-lg mb-6">Integrate Livewire components with Laravel Visual Builder for dynamic, real-time user interfaces without leaving the comfort of PHP.</p>
+                        <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                            <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button">Copy</button>
+                            <pre class="text-white"><code class="language-php">class DynamicForm extends Component
+{
+    use WithVisualBuilder;
+
+    public $formData = [];
+
+    public function render()
+    {
+        return view('livewire.dynamic-form');
+    }
+
+    public function submit()
+    {
+        $this->validate([
+            'formData.email' => 'required|email',
+            'formData.password' => 'required|min:8',
+        ]);
+        // Handle form submission
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ADVANCED SECTIONS -->
+                <section id="middleware" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold text-gray-900 mb-12">Middleware Configuration</h2>
+                    <div class="card">
+                        <p class="text-gray-700 text-lg mb-6">Protect your visual builder routes and components by applying middleware. You can define global middleware in your `config/visual-builder.php` file.</p>
+                        <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                            <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button">Copy</button>
+                            <pre class="text-white"><code class="language-php">// In config/visual-builder.php
+'middleware' => [
+    'web',
+    'auth',
+    \App\Http\Middleware\CheckSubscription::class,
+],</code></pre>
+                        </div>
+                        <p class="text-gray-700 text-lg mt-8 mb-6">This ensures that only authenticated users with an active subscription can access the builder, providing a robust layer of security.</p>
+                    </div>
+                </section>
+
+                <section id="feature-flags" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold text-gray-900 mb-12">Feature Flags</h2>
+                    <div class="card">
+                        <p class="text-gray-700 text-lg mb-6">Implement feature flags for gradual rollouts and A/B testing of your components. Laravel Visual Builder can be integrated with popular feature flag services or a simple config-based implementation.</p>
+                        <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                            <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button">Copy</button>
+                            <pre class="text-white"><code class="language-php">use LaravelBuilder\VisualBuilder\Facades\Features;
+
+if (Features::enabled('new-component-builder')) {
+    // Show the new, enhanced component builder
+    return view('components.new-builder');
+} else {
+    // Fall back to the legacy component builder
+    return view('components.legacy-builder');
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="real-time" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold text-gray-900 mb-12">Real-time Updates (Reverb)</h2>
+                    <div class="card bg-white rounded-2xl p-8 shadow-xl">
+                        <p class="text-gray-700 text-lg mb-6">Integrate real-time functionality using Laravel Reverb for live previews, collaborative editing, or instant notifications.</p>
+                        <p class="text-gray-700 text-lg mb-4">First, ensure Reverb is installed and configured. Then, broadcast events from your backend when a component is updated.</p>
+                        <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                            <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button">Copy</button>
+                            <pre class="text-white"><code class="language-php">// app/Events/ComponentUpdated.php
+namespace App\Events;
+
+use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+
+class ComponentUpdated implements ShouldBroadcast
+{
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public function __construct(public array $component) {}
+
+    public function broadcastOn(): array
+    {
+        return [new Channel('builder')];
+    }
+}</code></pre>
+                        </div>
+                         <p class="text-gray-700 text-lg mt-8 mb-6">Then, listen for these events on your frontend:</p>
+                        <div class="code-block relative bg-gray-900 rounded-xl p-6">
+                            <button class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 copy-button">Copy</button>
+                            <pre class="text-white"><code class="language-javascript">// resources/js/echo.js
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
+window.Pusher = Pusher;
+
+window.Echo = new Echo({
+    broadcaster: 'reverb',
+    key: import.meta.env.VITE_REVERB_APP_KEY,
+    wsHost: import.meta.env.VITE_REVERB_HOST,
+    wsPort: import.meta.env.VITE_REVERB_PORT,
+    wssPort: import.meta.env.VITE_REVERB_PORT,
+    forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
+    enabledTransports: ['ws', 'wss'],
+});
+
+window.Echo.channel('builder')
+    .listen('ComponentUpdated', (e) => {
+        console.log('Component updated:', e.component);
+        // Add logic to refresh the component on the page
+    });
+</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="security" class="section mt-16">
+                    <h2 class="section-title text-4xl font-bold text-gray-900 mb-12">Security Considerations</h2>
+                    <div class="card bg-white rounded-2xl p-8 shadow-xl">
+                        <p class="text-gray-700 text-lg mb-6">Security is paramount. While Laravel Visual Builder adheres to Laravel's security best practices, it's crucial to be mindful of security when creating components.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+                            <div class="p-6 bg-gray-50 rounded-xl border border-gray-200">
+                                <h3 class="text-xl font-bold text-gray-900 mb-3">Input Sanitization & Validation</h3>
+                                <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                    <li>Always validate data submitted through forms or component properties using Laravel's Validator.</li>
+                                    <li>Sanitize user-generated content to prevent XSS. Blade's `{{ }}` syntax escapes by default.</li>
+                                    <li>Be cautious with ` {!! !!} ` syntax; only use it with trusted HTML.</li>
+                                </ul>
+                            </div>
+                            <div class="p-6 bg-gray-50 rounded-xl border border-gray-200">
+                                <h3 class="text-xl font-bold text-gray-900 mb-3">Authorization</h3>
+                                <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                    <li>Use Laravel's policies and gates to control who can access the builder and manage specific components.</li>
+                                    <li>Apply appropriate middleware to routes (see Middleware section).</li>
+                                </ul>
+                            </div>
+                            <div class="p-6 bg-gray-50 rounded-xl border border-gray-200 md:col-span-2">
+                                <h3 class="text-xl font-bold text-gray-900 mb-3">Malware Scanning (Conceptual)</h3>
+                                <p class="text-gray-600 mb-2">If your components handle file uploads, consider integrating a malware scanner. This is an advanced topic and might involve third-party services or libraries.</p>
+                                <div class="code-block relative bg-gray-900 rounded-xl p-4 text-sm mt-3">
+                                    <button class="absolute top-2 right-2 bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-xs transition-colors duration-200 copy-button">Copy</button>
+                                    <pre class="text-white"><code class="language-php">// Conceptual example of a service
+public function scanUploadedFile(UploadedFile $file): bool
+                        {
+    // Use a library like clamav-php to scan the file
+    // Return true if clean, false if infected
+                        }
+                        </code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>  
+            </div>
+        </main>
+    </div>
+    
+  <footer class="bg-gray-800 text-white text-center p-6 mt-auto">
+        <div class="max-w-7xl mx-auto">
+            <p class="mb-2">&copy; <span id="currentYear"></span> Laravel Visual Builder. All rights reserved.</p>
+            <p>
+                <a href="https://github.com/laravel-builder/visual-builder" class="hover:text-blue-400 transition-colors duration-200">
+                    View on GitHub
+                </a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-env.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set current year in footer
+            const currentYearEl = document.getElementById('currentYear');
+            if(currentYearEl) {
+                currentYearEl.textContent = new Date().getFullYear();
+            }
+
+            const sidebar = document.querySelector('.sidebar');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const menuOpenIcon = document.getElementById('menu-open-icon');
+            const menuCloseIcon = document.getElementById('menu-close-icon');
+            const sidebarOverlay = document.querySelector('.sidebar-overlay');
+
+            function toggleMenu() {
+                sidebar.classList.toggle('active');
+                menuOpenIcon.classList.toggle('hidden');
+                menuCloseIcon.classList.toggle('hidden');
+            }
+
+            if (mobileMenuButton && sidebar && menuOpenIcon && menuCloseIcon && sidebarOverlay) {
+                mobileMenuButton.addEventListener('click', toggleMenu);
+                sidebarOverlay.addEventListener('click', toggleMenu);
+            }
+
+            // Scrollspy for sidebar navigation
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // Modal logic
+            const openBtn = document.getElementById('open-modal-btn');
+            const closeBtn = document.getElementById('close-modal-btn');
+            const modal = document.getElementById('modal-container');
+
+            if (openBtn && closeBtn && modal) {
+                openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+                closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+                modal.addEventListener('click', (e) => {
+                    if (e.target.id === 'modal-container') {
+                        modal.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Interactive component logic
+            function setupInteractiveComponents() {
+                // Tabs
+                const tabButtons = document.querySelectorAll('[data-tab-toggle]');
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const targetPanel = document.getElementById(button.dataset.tabToggle);
+                        document.querySelectorAll('.tab-content').forEach(p => p.classList.add('hidden'));
+                        targetPanel.classList.remove('hidden');
+                        
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('border-blue-500', 'text-blue-600'));
+                        button.classList.add('border-blue-500', 'text-blue-600');
+                    });
+                });
+
+                // Accordion
+                const accordionTriggers = document.querySelectorAll('.accordion-trigger');
+                accordionTriggers.forEach(trigger => {
+                    trigger.addEventListener('click', () => {
+                        const content = trigger.parentElement.nextElementSibling;
+                        content.classList.toggle('hidden');
+                        trigger.querySelector('svg').classList.toggle('rotate-180');
+                    });
+                });
+
+                // Modal
+                const openBtn = document.getElementById('open-modal-btn');
+                const closeBtn = document.getElementById('close-modal-btn');
+                const modal = document.getElementById('modal-container');
+
+                if (openBtn && closeBtn && modal) {
+                    openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+                    closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+                    modal.addEventListener('click', (e) => {
+                        if (e.target.id === 'modal-container') {
+                            modal.classList.add('hidden');
+                        }
+                    });
+                }
+
+                // Toast
+                const showToastBtn = document.getElementById('show-toast-btn');
+                const toastContainer = document.getElementById('toast-container');
+                if (showToastBtn && toastContainer) {
+                    showToastBtn.addEventListener('click', () => {
+                        toastContainer.classList.remove('hidden');
+                        setTimeout(() => {
+                            toastContainer.classList.add('hidden');
+                        }, 3000);
+                    });
+                }
+
+                // Tooltip
+                const tooltipTriggers = document.querySelectorAll('.tooltip-trigger');
+                tooltipTriggers.forEach(trigger => {
+                    const tooltip = trigger.nextElementSibling;
+                    trigger.addEventListener('mouseenter', () => tooltip.classList.remove('invisible'));
+                    trigger.addEventListener('mouseleave', () => tooltip.classList.add('invisible'));
+                });
+            }
+            setupInteractiveComponents();
+        });
+
+        // Function to copy code to clipboard
+        function copyCode(button) {
+            const codeBlock = button.parentElement.querySelector('pre > code');
+            const text = codeBlock.innerText;
+
+            navigator.clipboard.writeText(text).then(function() {
+                button.textContent = 'Copied!';
+                setTimeout(function () {
+                    button.textContent = 'Copy';
+                }, 2000);
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    button.textContent = 'Copied!';
+                    setTimeout(function () { button.textContent = 'Copy'; }, 2000);
+                } catch (err) {
+                    console.error('Fallback copy failed', err);
+                }
+                document.body.removeChild(textArea);
+            });
+        }
+
+        // Add active class to nav links on click and scroll to section
+        const navLinks = document.querySelectorAll('.sidebar .nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                navLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html> 

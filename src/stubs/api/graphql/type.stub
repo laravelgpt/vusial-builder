@@ -1,0 +1,33 @@
+<?php
+
+namespace App\GraphQL\Types;
+
+use GraphQL\Type\Definition\Type;
+use Rebing\GraphQL\Support\Type as GraphQLType;
+
+class {{ DummyType }} extends GraphQLType
+{
+    protected $attributes = [
+        'name' => '{{ DummyType }}',
+        'description' => 'A {{ DummyType }} type',
+    ];
+
+    public function fields(): array
+    {
+        return [
+            'id' => [
+                'type' => Type::nonNull(Type::id()),
+                'description' => 'The id of the {{ DummyType }}',
+            ],
+            // Add your fields here
+            'created_at' => [
+                'type' => Type::string(),
+                'description' => 'The creation date of the {{ DummyType }}',
+            ],
+            'updated_at' => [
+                'type' => Type::string(),
+                'description' => 'The last update date of the {{ DummyType }}',
+            ],
+        ];
+    }
+} 

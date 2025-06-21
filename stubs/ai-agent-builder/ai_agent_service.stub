@@ -1,0 +1,130 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+
+class {{ class }}
+{
+    protected $apiKey;
+    protected $model;
+    protected $temperature;
+    protected $maxTokens;
+    protected $chatHistoryRepository;
+    protected $settingsRepository;
+    protected $analyticsRepository;
+    protected $interactionRepository;
+
+    public function __construct()
+    {
+        $this->apiKey = config('ai-agent.api_key');
+        $this->model = config('ai-agent.model', 'gpt-3.5-turbo');
+        $this->temperature = config('ai-agent.temperature', 0.7);
+        $this->maxTokens = config('ai-agent.max_tokens', 1000);
+        
+        $this->initializeRepositories();
+    }
+
+    {{ methods }}
+
+    protected function initializeRepositories()
+    {
+        $this->chatHistoryRepository = app(ChatHistoryRepository::class);
+        $this->settingsRepository = app(SettingsRepository::class);
+        $this->analyticsRepository = app(AnalyticsRepository::class);
+        $this->interactionRepository = app(InteractionRepository::class);
+    }
+
+    protected function getAiResponse($message, $context)
+    {
+        $cacheKey = 'ai_response_' . md5($message . json_encode($context));
+        
+        return Cache::remember($cacheKey, 3600, function () use ($message, $context) {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json'
+            ])->post('https://api.openai.com/v1/chat/completions', [
+                'model' => $this->model,
+                'messages' => $this->formatMessages($message, $context),
+                'temperature' => $this->temperature,
+                'max_tokens' => $this->maxTokens
+            ]);
+
+            if (!$response->successful()) {
+                throw new \Exception('AI API request failed: ' . $response->body());
+            }
+
+            return $this->formatResponse($response->json());
+        });
+    }
+
+    protected function formatMessages($message, $context)
+    {
+        $messages = [
+            ['role' => 'system', 'content' => $this->getSystemPrompt()],
+            ['role' => 'user', 'content' => $message]
+        ];
+
+        if (!empty($context['history'])) {
+            $messages = array_merge($messages, $context['history']);
+        }
+
+        return $messages;
+    }
+
+    protected function getSystemPrompt()
+    {
+        return "You are a helpful AI assistant. Provide clear, concise, and accurate responses.";
+    }
+
+    protected function formatResponse($response)
+    {
+        $content = $response['choices'][0]['message']['content'];
+        
+        return [
+            'text' => $content,
+            'confidence' => $response['choices'][0]['finish_reason'] === 'stop' ? 1.0 : 0.8,
+            'suggestions' => $this->generateSuggestions($content),
+            'tokens' => [
+                'prompt' => $response['usage']['prompt_tokens'],
+                'completion' => $response['usage']['completion_tokens'],
+                'total' => $response['usage']['total_tokens']
+            ]
+        ];
+    }
+
+    protected function generateSuggestions($content)
+    {
+        // Implement suggestion generation logic
+        return [];
+    }
+
+    protected function logInteraction($message, $response)
+    {
+        $this->interactionRepository->create([
+            'message' => $message,
+            'response' => $response,
+            'timestamp' => now(),
+            'tokens_used' => $response['tokens']['total'] ?? 0,
+            'confidence' => $response['confidence'] ?? 0
+        ]);
+
+        // Update analytics
+        $this->analyticsRepository->increment('total_interactions');
+        $this->analyticsRepository->increment('total_tokens', $response['tokens']['total'] ?? 0);
+    }
+
+    protected function logError($exception)
+    {
+        Log::error('AI Agent Error', [
+            'message' => $exception->getMessage(),
+            'trace' => $exception->getTraceAsString(),
+            'timestamp' => now()
+        ]);
+
+        // Update analytics
+        $this->analyticsRepository->increment('error_count');
+    }
+} 

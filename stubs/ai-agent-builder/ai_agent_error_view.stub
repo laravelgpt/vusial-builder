@@ -1,0 +1,203 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <!-- Error Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900" id="error-title">Error Occurred</h1>
+            <p class="mt-2 text-gray-600" id="error-message">An unexpected error has occurred. Please try again later.</p>
+        </div>
+
+        <!-- Error Details -->
+        <div class="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Error Details</h2>
+            
+            <div class="space-y-4">
+                <!-- Error Code -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Error Code</label>
+                    <p class="mt-1 text-sm text-gray-900" id="error-code">-</p>
+                </div>
+
+                <!-- Error Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Error Type</label>
+                    <p class="mt-1 text-sm text-gray-900" id="error-type">-</p>
+                </div>
+
+                <!-- Timestamp -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Timestamp</label>
+                    <p class="mt-1 text-sm text-gray-900" id="error-timestamp">-</p>
+                </div>
+
+                <!-- Stack Trace (Collapsible) -->
+                <div>
+                    <button type="button" id="toggle-stack-trace" class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-900">
+                        <span>Stack Trace</span>
+                        <svg class="ml-2 w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div id="stack-trace" class="mt-2 hidden">
+                        <pre class="bg-gray-50 rounded p-4 text-sm text-gray-800 overflow-x-auto" id="stack-trace-content"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recovery Options -->
+        <div class="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Recovery Options</h2>
+            
+            <div class="space-y-4">
+                <!-- Retry Operation -->
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900">Retry Operation</h3>
+                        <p class="mt-1 text-sm text-gray-600">Attempt to perform the operation again</p>
+                    </div>
+                    <button type="button" id="retry-button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Retry
+                    </button>
+                </div>
+
+                <!-- Clear Cache -->
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900">Clear Cache</h3>
+                        <p class="mt-1 text-sm text-gray-600">Clear the AI agent's cache and temporary data</p>
+                    </div>
+                    <button type="button" id="clear-cache-button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                        Clear Cache
+                    </button>
+                </div>
+
+                <!-- Reset Settings -->
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900">Reset Settings</h3>
+                        <p class="mt-1 text-sm text-gray-600">Reset the AI agent's settings to default values</p>
+                    </div>
+                    <button type="button" id="reset-settings-button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        Reset Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Information -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Need Help?</h2>
+            
+            <div class="space-y-4">
+                <p class="text-sm text-gray-600">If you continue to experience issues, please contact our support team:</p>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="mailto:support@example.com" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Email Support
+                    </a>
+                    
+                    <a href="https://example.com/support" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Knowledge Base
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get error details from URL parameters or localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorDetails = JSON.parse(localStorage.getItem('lastError') || '{}');
+
+    // Update error information
+    document.getElementById('error-title').textContent = errorDetails.title || 'Error Occurred';
+    document.getElementById('error-message').textContent = errorDetails.message || 'An unexpected error has occurred. Please try again later.';
+    document.getElementById('error-code').textContent = errorDetails.code || '-';
+    document.getElementById('error-type').textContent = errorDetails.type || '-';
+    document.getElementById('error-timestamp').textContent = errorDetails.timestamp || new Date().toISOString();
+    document.getElementById('stack-trace-content').textContent = errorDetails.stackTrace || 'No stack trace available';
+
+    // Toggle stack trace visibility
+    document.getElementById('toggle-stack-trace').addEventListener('click', function() {
+        const stackTrace = document.getElementById('stack-trace');
+        const isHidden = stackTrace.classList.contains('hidden');
+        stackTrace.classList.toggle('hidden');
+        this.querySelector('svg').style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0)';
+    });
+
+    // Retry operation
+    document.getElementById('retry-button').addEventListener('click', function() {
+        const retryUrl = errorDetails.retryUrl || window.location.href;
+        window.location.href = retryUrl;
+    });
+
+    // Clear cache
+    document.getElementById('clear-cache-button').addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear the cache? This will remove all temporary data.')) {
+            fetch('/api/ai-agent/clear-cache', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Cache cleared successfully');
+                    window.location.reload();
+                } else {
+                    alert('Failed to clear cache');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while clearing the cache');
+            });
+        }
+    });
+
+    // Reset settings
+    document.getElementById('reset-settings-button').addEventListener('click', function() {
+        if (confirm('Are you sure you want to reset all settings to default values? This action cannot be undone.')) {
+            fetch('/api/ai-agent/reset-settings', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Settings reset successfully');
+                    window.location.href = '/ai-agent/settings';
+                } else {
+                    alert('Failed to reset settings');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while resetting settings');
+            });
+        }
+    });
+});
+</script>
+@endpush
+@endsection 

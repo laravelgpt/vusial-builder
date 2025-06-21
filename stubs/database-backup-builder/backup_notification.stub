@@ -1,0 +1,96 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\SlackMessage;
+
+class {{ class }} extends Notification
+{
+    use Queueable;
+
+    protected $backupData;
+    protected $type;
+
+    public function __construct($backupData, $type = 'success')
+    {
+        $this->backupData = $backupData;
+        $this->type = $type;
+    }
+
+    public function via($notifiable)
+    {
+        return ['mail', 'slack', 'database'];
+    }
+
+    public function toMail($notifiable)
+    {
+        if ($this->type === 'success') {
+            return (new MailMessage)
+                ->subject('Database Backup Completed Successfully')
+                ->greeting('Hello!')
+                ->line('A database backup has been completed successfully.')
+                ->line('Backup Details:')
+                ->line('- File: ' . basename($this->backupData['file']))
+                ->line('- Size: ' . $this->formatBytes($this->backupData['size']))
+                ->line('- Compressed: ' . ($this->backupData['compressed'] ? 'Yes' : 'No'))
+                ->action('View Backups', url('/admin/backups'))
+                ->line('Thank you for using our application!');
+        }
+
+        return (new MailMessage)
+            ->error()
+            ->subject('Database Backup Failed')
+            ->greeting('Hello!')
+            ->line('A database backup has failed.')
+            ->line('Error: ' . $this->backupData)
+            ->action('View Backups', url('/admin/backups'))
+            ->line('Please check the logs for more details.');
+    }
+
+    public function toSlack($notifiable)
+    {
+        if ($this->type === 'success') {
+            return (new SlackMessage)
+                ->success()
+                ->content('Database Backup Completed Successfully')
+                ->attachment(function ($attachment) {
+                    $attachment->title('Backup Details')
+                        ->fields([
+                            'File' => basename($this->backupData['file']),
+                            'Size' => $this->formatBytes($this->backupData['size']),
+                            'Compressed' => $this->backupData['compressed'] ? 'Yes' : 'No'
+                        ]);
+                });
+        }
+
+        return (new SlackMessage)
+            ->error()
+            ->content('Database Backup Failed')
+            ->attachment(function ($attachment) {
+                $attachment->title('Error Details')
+                    ->content($this->backupData);
+            });
+    }
+
+    public function toArray($notifiable)
+    {
+        return [
+            'type' => $this->type,
+            'data' => $this->backupData,
+            'created_at' => now()
+        ];
+    }
+
+    protected function formatBytes($bytes)
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= pow(1024, $pow);
+        return round($bytes, 2) . ' ' . $units[$pow];
+    }
+} 

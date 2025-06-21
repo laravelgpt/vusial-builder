@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package {{ dummyService }};
+
+service {{ DummyService }} {
+    rpc Call (Request) returns (Response) {}
+    rpc Stream (Request) returns (stream Response) {}
+    rpc ClientStream (stream Request) returns (Response) {}
+    rpc BidiStream (stream Request) returns (stream Response) {}
+}
+
+message Request {
+    string id = 1;
+    // Add your request fields here
+}
+
+message Response {
+    string id = 1;
+    // Add your response fields here
+} 

@@ -1,0 +1,118 @@
+@extends('{{ layout }}')
+
+@section('title', 'Create Page')
+
+@section('content')
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-gray-900">Create Page</h1>
+                    <a href="{{ route('{{ routeName }}.index') }}" class="text-indigo-600 hover:text-indigo-900">
+                        &larr; Back to Pages
+                    </a>
+                </div>
+
+                <form action="{{ route('{{ routeName }}.store') }}" method="POST">
+                    @csrf
+
+                    <div class="space-y-6">
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                            <input type="text" name="title" id="title" value="{{ old('title') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                            @error('title')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="content" class="block text-sm font-medium text-gray-700">Content</label>
+                            <textarea name="content" id="content" rows="10" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>{{ old('content') }}</textarea>
+                            @error('content')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div>
+                                <label for="meta_title" class="block text-sm font-medium text-gray-700">Meta Title</label>
+                                <input type="text" name="meta_title" id="meta_title" value="{{ old('meta_title') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                @error('meta_title')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="meta_description" class="block text-sm font-medium text-gray-700">Meta Description</label>
+                                <input type="text" name="meta_description" id="meta_description" value="{{ old('meta_description') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                @error('meta_description')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="meta_keywords" class="block text-sm font-medium text-gray-700">Meta Keywords</label>
+                            <input type="text" name="meta_keywords" id="meta_keywords" value="{{ old('meta_keywords') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            @error('meta_keywords')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div>
+                                <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                                <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Draft</option>
+                                    <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>Published</option>
+                                </select>
+                                @error('status')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="published_at" class="block text-sm font-medium text-gray-700">Published At</label>
+                                <input type="datetime-local" name="published_at" id="published_at" value="{{ old('published_at') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                @error('published_at')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                Create Page
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    // Initialize any JavaScript components here
+    document.addEventListener('DOMContentLoaded', function() {
+        // Example: Initialize a rich text editor
+        if (typeof tinymce !== 'undefined') {
+            tinymce.init({
+                selector: '#content',
+                height: 400,
+                plugins: [
+                    'advlist autolink lists link image charmap print preview anchor',
+                    'searchreplace visualblocks code fullscreen',
+                    'insertdatetime media table paste code help wordcount'
+                ],
+                toolbar: 'undo redo | formatselect | bold italic backcolor | \
+                    alignleft aligncenter alignright alignjustify | \
+                    bullist numlist outdent indent | removeformat | help'
+            });
+        }
+    });
+</script>
+@endpush 

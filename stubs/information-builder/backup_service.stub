@@ -1,0 +1,113 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
+
+class {{ class }}
+{
+    protected $backupPath;
+    protected $maxBackups;
+    protected $compressBackups;
+
+    public function __construct()
+    {
+        $this->backupPath = storage_path('app/backups');
+        $this->maxBackups = config('backup.max_backups', 10);
+        $this->compressBackups = config('backup.compress', true);
+        
+        if (!File::exists($this->backupPath)) {
+            File::makeDirectory($this->backupPath, 0755, true);
+        }
+    }
+
+    {{ methods }}
+
+    protected function getLastBackupTime()
+    {
+        $backups = $this->listBackups();
+        return $backups->max('created_at') ?? null;
+    }
+
+    protected function getBackupCount()
+    {
+        return count($this->listBackups());
+    }
+
+    protected function getTotalBackupSize()
+    {
+        $backups = $this->listBackups();
+        return $backups->sum('size');
+    }
+
+    protected function cleanupOldBackups()
+    {
+        $backups = $this->listBackups();
+        
+        if (count($backups) > $this->maxBackups) {
+            $toDelete = $backups->sortBy('created_at')
+                ->take(count($backups) - $this->maxBackups);
+            
+            foreach ($toDelete as $backup) {
+                $this->deleteBackup($backup['name']);
+            }
+        }
+    }
+
+    protected function validateBackup($backupFile)
+    {
+        if (!file_exists($backupFile)) {
+            throw new \Exception('Backup file not found');
+        }
+
+        $command = sprintf(
+            'mysqlcheck -u%s -p%s %s < %s',
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database'),
+            $backupFile
+        );
+
+        exec($command, $output, $returnVar);
+        
+        return $returnVar === 0;
+    }
+
+    protected function compressBackup($backupFile)
+    {
+        if (!$this->compressBackups) {
+            return $backupFile;
+        }
+
+        $zipPath = $backupFile . '.zip';
+        $zip = new \ZipArchive();
+        
+        if ($zip->open($zipPath, \ZipArchive::CREATE) === TRUE) {
+            $zip->addFile($backupFile, basename($backupFile));
+            $zip->close();
+            
+            unlink($backupFile);
+            return $zipPath;
+        }
+        
+        return $backupFile;
+    }
+
+    protected function logBackupEvent($event, $data = [])
+    {
+        Log::channel('backup')->info($event, $data);
+    }
+
+    protected function getBackupMetadata($backupFile)
+    {
+        return [
+            'name' => basename($backupFile),
+            'size' => filesize($backupFile),
+            'created_at' => filemtime($backupFile),
+            'is_compressed' => pathinfo($backupFile, PATHINFO_EXTENSION) === 'zip',
+            'checksum' => hash_file('sha256', $backupFile)
+        ];
+    }
+} 

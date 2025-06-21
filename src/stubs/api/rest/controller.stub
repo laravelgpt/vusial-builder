@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\{{ DummyModel }};
+use App\Http\Resources\{{ DummyResource }};
+use Illuminate\Http\Request;
+
+class {{ DummyController }} extends Controller
+{
+    public function index()
+    {
+        ${{ dummyModelPlural }} = {{ DummyModel }}::paginate();
+        return {{ DummyResource }}::collection(${{ dummyModelPlural }});
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            // Add your validation rules here
+        ]);
+
+        ${{ dummyModel }} = {{ DummyModel }}::create($validated);
+        return new {{ DummyResource }}(${{ dummyModel }});
+    }
+
+    public function show({{ DummyModel }} ${{ dummyModel }})
+    {
+        return new {{ DummyResource }}(${{ dummyModel }});
+    }
+
+    public function update(Request $request, {{ DummyModel }} ${{ dummyModel }})
+    {
+        $validated = $request->validate([
+            // Add your validation rules here
+        ]);
+
+        ${{ dummyModel }}->update($validated);
+        return new {{ DummyResource }}(${{ dummyModel }});
+    }
+
+    public function destroy({{ DummyModel }} ${{ dummyModel }})
+    {
+        ${{ dummyModel }}->delete();
+        return response()->noContent();
+    }
+} 

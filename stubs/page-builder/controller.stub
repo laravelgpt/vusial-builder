@@ -1,0 +1,134 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Http\Controllers\Controller;
+use {{ modelNamespace }}\{{ modelClass }};
+use {{ requestNamespace }}\{{ requestClass }};
+use {{ serviceNamespace }}\{{ serviceClass }};
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+
+class {{ class }} extends Controller
+{
+    /**
+     * The page service instance.
+     *
+     * @var \{{ serviceNamespace }}\{{ serviceClass }}
+     */
+    protected $pageService;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param  \{{ serviceNamespace }}\{{ serviceClass }}  $pageService
+     * @return void
+     */
+    public function __construct({{ serviceClass }} $pageService)
+    {
+        $this->pageService = $pageService;
+        $this->middleware('auth')->except(['index', 'show']);
+    }
+
+    /**
+     * Display a listing of the pages.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index()
+    {
+        $pages = Cache::tags(['pages'])->remember('pages.index', 3600, function () {
+            return $this->pageService->getAllPages();
+        });
+
+        return view('{{ viewNamespace }}.index', compact('pages'));
+    }
+
+    /**
+     * Show the form for creating a new page.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function create()
+    {
+        return view('{{ viewNamespace }}.create');
+    }
+
+    /**
+     * Store a newly created page in storage.
+     *
+     * @param  \{{ requestNamespace }}\{{ requestClass }}  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store({{ requestClass }} $request)
+    {
+        $page = $this->pageService->createPage($request->validated());
+
+        Cache::tags(['pages'])->flush();
+
+        return redirect()
+            ->route('{{ routeName }}.show', $page)
+            ->with('success', 'Page created successfully.');
+    }
+
+    /**
+     * Display the specified page.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return \Illuminate\View\View
+     */
+    public function show({{ modelClass }} $page)
+    {
+        $page = Cache::tags(['pages'])->remember("pages.{$page->id}", 3600, function () use ($page) {
+            return $this->pageService->getPage($page);
+        });
+
+        return view('{{ viewNamespace }}.show', compact('page'));
+    }
+
+    /**
+     * Show the form for editing the specified page.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return \Illuminate\View\View
+     */
+    public function edit({{ modelClass }} $page)
+    {
+        return view('{{ viewNamespace }}.edit', compact('page'));
+    }
+
+    /**
+     * Update the specified page in storage.
+     *
+     * @param  \{{ requestNamespace }}\{{ requestClass }}  $request
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update({{ requestClass }} $request, {{ modelClass }} $page)
+    {
+        $this->pageService->updatePage($page, $request->validated());
+
+        Cache::tags(['pages'])->flush();
+
+        return redirect()
+            ->route('{{ routeName }}.show', $page)
+            ->with('success', 'Page updated successfully.');
+    }
+
+    /**
+     * Remove the specified page from storage.
+     *
+     * @param  \{{ modelNamespace }}\{{ modelClass }}  $page
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy({{ modelClass }} $page)
+    {
+        $this->pageService->deletePage($page);
+
+        Cache::tags(['pages'])->flush();
+
+        return redirect()
+            ->route('{{ routeName }}.index')
+            ->with('success', 'Page deleted successfully.');
+    }
+} 

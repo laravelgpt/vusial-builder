@@ -1,0 +1,89 @@
+<?php
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Reverb Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This file contains WebSocket server configuration settings using Laravel Reverb.
+    |
+    */
+
+    'default' => env('REVERB_SERVER', 'soketi'),
+
+    'servers' => [
+        'soketi' => [
+            'app_id' => env('SOKETI_APP_ID'),
+            'app_key' => env('SOKETI_APP_KEY'),
+            'app_secret' => env('SOKETI_APP_SECRET'),
+            'host' => env('SOKETI_HOST', '127.0.0.1'),
+            'port' => env('SOKETI_PORT', 6001),
+            'scheme' => env('SOKETI_SCHEME', 'http'),
+            'path' => env('SOKETI_PATH', ''),
+            'options' => [
+                'cluster' => env('SOKETI_CLUSTER', 'mt1'),
+                'encrypted' => env('SOKETI_ENCRYPTED', true),
+                'useTLS' => env('SOKETI_USE_TLS', false),
+            ],
+        ],
+        'pusher' => [
+            'app_id' => env('PUSHER_APP_ID'),
+            'app_key' => env('PUSHER_APP_KEY'),
+            'app_secret' => env('PUSHER_APP_SECRET'),
+            'host' => env('PUSHER_HOST', 'api-'.env('PUSHER_APP_CLUSTER', 'mt1').'.pusher.com'),
+            'port' => env('PUSHER_PORT', 443),
+            'scheme' => env('PUSHER_SCHEME', 'https'),
+            'app_cluster' => env('PUSHER_APP_CLUSTER', 'mt1'),
+        ],
+    ],
+
+    'channels' => [
+        'ai_agent' => [
+            'name' => 'ai-agent',
+            'auth' => true,
+            'presence' => true,
+        ],
+        'security_scan' => [
+            'name' => 'security-scan',
+            'auth' => true,
+            'presence' => true,
+        ],
+        'backup_status' => [
+            'name' => 'backup-status',
+            'auth' => true,
+            'presence' => true,
+        ],
+        'cloud_sync' => [
+            'name' => 'cloud-sync',
+            'auth' => true,
+            'presence' => true,
+        ],
+    ],
+
+    'events' => [
+        'ai_response' => [
+            'channel' => 'ai_agent',
+            'event' => 'ai.response',
+        ],
+        'scan_complete' => [
+            'channel' => 'security_scan',
+            'event' => 'scan.complete',
+        ],
+        'backup_progress' => [
+            'channel' => 'backup_status',
+            'event' => 'backup.progress',
+        ],
+        'sync_update' => [
+            'channel' => 'cloud_sync',
+            'event' => 'sync.update',
+        ],
+    ],
+
+    'options' => [
+        'debug' => env('REVERB_DEBUG', false),
+        'timeout' => env('REVERB_TIMEOUT', 30),
+        'reconnect' => env('REVERB_RECONNECT', true),
+        'max_attempts' => env('REVERB_MAX_ATTEMPTS', 3),
+    ],
+]; 

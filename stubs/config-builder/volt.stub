@@ -1,0 +1,90 @@
+<?php
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Volt Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This file contains Livewire Volt configuration settings.
+    |
+    */
+
+    'class_namespace' => 'App\\Livewire',
+
+    'view_path' => resource_path('views/livewire'),
+
+    'layout' => 'layouts.app',
+
+    'temporary_file_upload' => [
+        'disk' => null,
+        'rules' => null,
+        'directory' => null,
+        'middleware' => null,
+        'preview_mimes' => [
+            'png', 'gif', 'bmp', 'svg', 'wav', 'mp4',
+            'mov', 'avi', 'wmv', 'mp3', 'm4a',
+            'jpg', 'jpeg', 'mpga', 'webp', 'wma',
+        ],
+        'max_upload_time' => 5,
+    ],
+
+    'manifest_path' => null,
+
+    'back_button_cache' => false,
+
+    'render_on_redirect' => false,
+
+    'components' => [
+        'ai_agent' => [
+            'class' => \App\Livewire\AiAgent::class,
+            'view' => 'livewire.ai-agent',
+        ],
+        'security_scan' => [
+            'class' => \App\Livewire\SecurityScan::class,
+            'view' => 'livewire.security-scan',
+        ],
+        'backup_manager' => [
+            'class' => \App\Livewire\BackupManager::class,
+            'view' => 'livewire.backup-manager',
+        ],
+        'cloud_storage' => [
+            'class' => \App\Livewire\CloudStorage::class,
+            'view' => 'livewire.cloud-storage',
+        ],
+    ],
+
+    'middleware' => [
+        'web',
+        'auth',
+    ],
+
+    'assets' => [
+        'styles' => [
+            'css/app.css',
+        ],
+        'scripts' => [
+            'js/app.js',
+        ],
+    ],
+
+    'app_url' => env('APP_URL'),
+
+    'asset_url' => env('ASSET_URL'),
+
+    'app_name' => env('APP_NAME', 'Laravel'),
+
+    'app_env' => env('APP_ENV', 'production'),
+
+    'app_debug' => env('APP_DEBUG', false),
+
+    'app_timezone' => env('APP_TIMEZONE', 'UTC'),
+
+    'app_locale' => env('APP_LOCALE', 'en'),
+
+    'app_fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+
+    'app_key' => env('APP_KEY'),
+
+    'app_cipher' => 'AES-256-CBC',
+]; 
